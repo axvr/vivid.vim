@@ -25,7 +25,7 @@ let s:next_location = 1
 let s:install_dir = ''
 
 
-" Set install directory
+" Set install directory automatically
 if has('nvim')
     if !isdirectory($HOME . '/.config/nvim/bundle')
         call mkdir($HOME . '/.config/nvim/bundle')
@@ -38,13 +38,14 @@ else
     let s:install_dir = $HOME . '/.vim/bundle'
 endif
 
-
+" Allow manual setting of plugin directory by the user
 function! vivid#set_install_dir(path) abort
     let s:install_dir = expand(a:path)
 endfunction
 
 
 " Add a plugin for Vivid to manage
+" Example:
 " call vivid#add('rhysd/clever-f.vim', {
 "     \ 'name': 'Clever-f',
 "     \ 'path': 'clever-f.vim',
@@ -98,7 +99,10 @@ function! vivid#add(remote, ...) abort
     let l:plugin = [l:name, l:remote, l:path, l:enabled]
     call add(s:plugins, l:plugin)
 
-    " TODO
+
+
+
+    " FIXME
     let s:names.{l:name} = s:next_location
     let s:next_location += 1
 
@@ -106,6 +110,11 @@ endfunction
 
 
 function! vivid#enable(name) abort
+    echo s:names[a:name]
+endfunction
+
+
+function! vivid#enable_local(name) abort
     echo s:names[a:name]
 endfunction
 
