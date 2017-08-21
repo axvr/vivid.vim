@@ -20,8 +20,6 @@ endif
 " |-------+---------------------------------------+--------------+---------|
 " | Vivid | https://github.com/axvr/Vivid.vim.git | Vivid        | 1       |
 let s:plugins = [['Vivid', 'https://github.com/axvr/Vivid.vim', 'Vivid.vim', 1]]
-let s:names   = { 'Vivid': 0, }
-let s:next_location = 1
 let s:install_dir = ''
 
 
@@ -54,14 +52,6 @@ endfunction
 " Arguments: 'remote', { 'name': 'name', 'path': 'path', 'enabled': 'enabled' }
 function! vivid#add(remote, ...) abort
 
-    " TODO restructure and refactor this entire section
-
-    " TODO conditional to check is all info is given otherwise create it
-    if a:0 == 0 || a:0 > 1
-        echo "Invalid number of arguments"
-        stop " TODO exit function
-    endif
-
     " Create remote path for plugin
     " TODO add functionality for other sources and methods
     if a:remote =~ '^https:\/\/.\+'
@@ -73,21 +63,29 @@ function! vivid#add(remote, ...) abort
         let l:remote = 'https://github.com/' . a:remote . '.git'
     else
         echo "Remote address creation fail"
-        stop " TODO exit function
+        return
     endif
 
-    let l:info = a:1
+    if a:0 == 1
+        let l:info = a:1
+    endif
 
     if a:0 == 1 && has_key(l:info, 'path')
         let l:path = l:info['path']
     else
-        " TODO
+        let l:temp_path = l:remote
+        let l:temp_path = split(l:temp_path, "/")
+        let l:path = l:temp_path[-1]
+        " TODO extend path to avoid same paths
     endif
 
     if a:0 == 1 && has_key(l:info, 'name')
         let l:name = l:info['name']
     else
-        " TODO
+        let l:temp_name = l:remote
+        let l:temp_name = split(l:temp_name, "/")
+        let l:name = l:temp_name[-1]
+        " TODO remove '.git' from end of name
     endif
 
     if a:0 == 1 && has_key(l:info, 'enabled')
@@ -99,23 +97,18 @@ function! vivid#add(remote, ...) abort
     let l:plugin = [l:name, l:remote, l:path, l:enabled]
     call add(s:plugins, l:plugin)
 
-
-
-
-    " FIXME
-    let s:names.{l:name} = s:next_location
-    let s:next_location += 1
+    return
 
 endfunction
 
 
 function! vivid#enable(name) abort
-    echo s:names[a:name]
+
 endfunction
 
 
 function! vivid#enable_local(name) abort
-    echo s:names[a:name]
+
 endfunction
 
 
