@@ -20,6 +20,8 @@ endif
 " |-------+---------------------------------------+--------------+---------|
 " | Vivid | https://github.com/axvr/Vivid.vim.git | Vivid        | 1       |
 let s:plugins = [['Vivid', 'https://github.com/axvr/Vivid.vim', 'Vivid.vim', 1]]
+let s:names   = { 'Vivid': 0, }
+let s:next_location = 1
 let s:install_dir = ''
 
 
@@ -73,19 +75,21 @@ function! vivid#add(remote, ...) abort
     if a:0 == 1 && has_key(l:info, 'path')
         let l:path = l:info['path']
     else
-        let l:temp_path = l:remote
-        let l:temp_path = split(l:temp_path, "/")
-        let l:path = l:temp_path[-1]
-        " TODO extend path to avoid same paths
+        let l:path = l:remote
+        let l:path = split(l:path, "/")
+        let l:path = l:path[-1]
+        " TODO maybe extend path to avoid same paths
     endif
 
     if a:0 == 1 && has_key(l:info, 'name')
         let l:name = l:info['name']
     else
-        let l:temp_name = l:remote
-        let l:temp_name = split(l:temp_name, "/")
-        let l:name = l:temp_name[-1]
-        " TODO remove '.git' from end of name
+        let l:name = l:remote
+        let l:name = split(l:name, "/")
+        let l:name = l:name[-1]
+        let l:name = substitute(l:name, '\.', ';', '')
+        let l:name = split(l:name, ";")
+        let l:name = l:name[0]
     endif
 
     if a:0 == 1 && has_key(l:info, 'enabled')
@@ -94,10 +98,25 @@ function! vivid#add(remote, ...) abort
         let l:enabled = 0
     endif
 
+    " TODO check name (& path) don't already exist
     let l:plugin = [l:name, l:remote, l:path, l:enabled]
     call add(s:plugins, l:plugin)
 
+    " TODO add name to dictionary
+    let s:names[l:name] = s:next_location
+    let s:next_location += 1
+
     return
+
+endfunction
+
+
+function! vivid#install(...) abort
+
+endfunction
+
+
+function! vivid#upgrade(...) abort
 
 endfunction
 
