@@ -14,12 +14,14 @@ endif
 
 
 " Main list for Vivid to manage all plugins
-" g:plugins = [[a, 1, 4], [b, 2, 5], [c, 3, 6],]
+" s:plugins = [[a, 1, 4], [b, 2, 5], [c, 3, 6],]
 "              ^brackets = rows  ^numbers = columns
 " | Name  | Remote Address                        | Install Path | Enabled |
 " |-------+---------------------------------------+--------------+---------|
 " | Vivid | https://github.com/axvr/Vivid.vim.git | Vivid        | 1       |
 let s:plugins = [['Vivid', 'https://github.com/axvr/Vivid.vim', 'Vivid.vim', 1]]
+" Dictionary containing locations of plugins in the list (for quickly finding
+" a specific plugin, without requiring searching every item of the list)
 let s:names   = { 'Vivid': 0, }
 let s:next_location = 1
 let s:install_dir = ''
@@ -68,10 +70,12 @@ function! vivid#add(remote, ...) abort
         return
     endif
 
+    " If extra info is given create a new dictionary for it
     if a:0 == 1
         let l:info = a:1
     endif
 
+    " Create the path from the remote address (unless one was given)
     if a:0 == 1 && has_key(l:info, 'path')
         let l:path = l:info['path']
     else
@@ -81,6 +85,7 @@ function! vivid#add(remote, ...) abort
         " TODO maybe extend path to avoid path collision
     endif
 
+    " Create the name from the remote address (unless one was given)
     if a:0 == 1 && has_key(l:info, 'name')
         let l:name = l:info['name']
     else
@@ -92,21 +97,23 @@ function! vivid#add(remote, ...) abort
         let l:name = l:name[0]
     endif
 
+    " Default the auto-enabled to false (unless explicitly stated otherwise)
     if a:0 == 1 && has_key(l:info, 'enabled')
+        " TODO if set to 'enabled', enable plugin at end of vivid#add function
         let l:enabled = l:info['enabled']
     else
         let l:enabled = 0
     endif
 
 
+    " Check that the same plugin has not already been added to Vivid
     if !has_key(s:names, l:name)
-
+        " Add plugin to the (2D) list
         let l:plugin = [l:name, l:remote, l:path, l:enabled]
         call add(s:plugins, l:plugin)
-
+        " Add plugin to the s:names dictionary to find the info quickly
         let s:names[l:name] = s:next_location
         let s:next_location += 1
-
     endif
 
     return
@@ -114,13 +121,45 @@ function! vivid#add(remote, ...) abort
 endfunction
 
 
+" Install plugins (TODO async download)
 function! vivid#install(...) abort
-
+    if a:0 != 0
+        for l:plugin in a:000
+            if has_key(s:names, l:plugin)
+                let l:index = get(s:names, l:plugin, '-1')
+                if l:index != -1
+                    " TODO install plugin
+                    echo s:plugins[l:index][1]
+                endif
+            endif
+        endfor
+    else
+        for l:plugin in s:plugins
+            " TODO install plugin
+            echo l:plugin[1]
+        endfor
+    endif
 endfunction
 
 
+" Upgrade plugins (TODO async download)
 function! vivid#upgrade(...) abort
-
+    if a:0 != 0
+        for l:plugin in a:000
+            if has_key(s:names, l:plugin)
+                let l:index = get(s:names, l:plugin, '-1')
+                if l:index != -1
+                    " TODO upgrade plugin
+                    echo s:plugins[l:index][1]
+                endif
+            endif
+        endfor
+    else
+        for l:plugin in s:plugins
+            " TODO upgrade plugin
+            echo l:plugin[1]
+        endfor
+    endif
 endfunction
 
 
@@ -139,3 +178,4 @@ function! vivid#clean(...) abort
 endfunction
 
 
+" vim: set ts=4 sw=4 tw=80 et :
