@@ -98,13 +98,16 @@ function! vivid#add(remote, ...) abort
         let l:enabled = 0
     endif
 
-    " TODO check name (& path) don't already exist
-    let l:plugin = [l:name, l:remote, l:path, l:enabled]
-    call add(s:plugins, l:plugin)
 
-    " TODO add name to dictionary
-    let s:names[l:name] = s:next_location
-    let s:next_location += 1
+    if !has_key(s:names, l:name)
+
+        let l:plugin = [l:name, l:remote, l:path, l:enabled]
+        call add(s:plugins, l:plugin)
+
+        let s:names[l:name] = s:next_location
+        let s:next_location += 1
+
+    endif
 
     return
 
