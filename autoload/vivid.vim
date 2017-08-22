@@ -78,7 +78,7 @@ function! vivid#add(remote, ...) abort
         let l:path = l:remote
         let l:path = split(l:path, "/")
         let l:path = l:path[-1]
-        " TODO maybe extend path to avoid same paths
+        " TODO maybe extend path to avoid path collision
     endif
 
     if a:0 == 1 && has_key(l:info, 'name')
@@ -130,6 +130,11 @@ endfunction
 
 
 function! vivid#enable_local(name) abort
+
+endfunction
+
+
+function! vivid#clean(...) abort
 
 endfunction
 
