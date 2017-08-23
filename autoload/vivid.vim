@@ -28,16 +28,18 @@ let s:install_dir = ''
 
 
 " Set install directory automatically
+let s:nvim_path = $HOME . '/.config/nvim/bundle'
+let s:vim_path  = $HOME . '/.vim/bundle'
 if has('nvim')
-    if !isdirectory($HOME . '/.config/nvim/bundle')
-        call mkdir($HOME . '/.config/nvim/bundle')
+    if !isdirectory(s:nvim_path)
+        call mkdir(s:nvim_path)
     endif
-    let s:install_dir = $HOME . '/.config/nvim/bundle'
+    let s:install_dir = s:nvim_path
 else
-    if !isdirectory($HOME . '/.vim/bundle')
-        call mkdir($HOME . '/.vim/bundle')
+    if !isdirectory(s:vim_path)
+        call mkdir(s:vim_path)
     endif
-    let s:install_dir = $HOME . '/.vim/bundle'
+    let s:install_dir = s:vim_path
 endif
 
 " Allow manual setting of plugin directory by the user
@@ -51,7 +53,7 @@ endfunction
 " call vivid#add('rhysd/clever-f.vim', {
 "     \ 'name': 'Clever-f',
 "     \ 'path': 'clever-f.vim',
-"     \ 'enabled': '1',
+"     \ 'enabled': 1,
 "     \ } )
 " Arguments: 'remote', { 'name': 'name', 'path': 'path', 'enabled': 'enabled' }
 function! vivid#add(remote, ...) abort
@@ -94,6 +96,7 @@ function! vivid#add(remote, ...) abort
         let l:name = l:remote
         let l:name = split(l:name, "/")
         let l:name = l:name[-1]
+        " for some unknown reason, split() does not work on '.'
         let l:name = substitute(l:name, '\.', ';', '')
         let l:name = split(l:name, ";")
         let l:name = l:name[0]
@@ -153,6 +156,7 @@ function! vivid#install(...) abort
             endif
         endfor
     else
+        let l:index = 0
         for l:plugin in s:plugins
             let l:install_path = s:install_dir . "/" . l:plugin[2]
             if !isdirectory(l:install_path)
@@ -162,6 +166,7 @@ function! vivid#install(...) abort
             else
                 echomsg l:echo_message "Skipped:  " l:plugin[0]
             endif
+            let l:index += 1
         endfor
     endif
     echomsg l:echo_message "DONE"
@@ -181,9 +186,12 @@ function! vivid#upgrade(...) abort
             endif
         endfor
     else
+        l:index = 0
         for l:plugin in s:plugins
             " TODO upgrade plugin
             echo l:plugin[1]
+
+            let l:index += 1
         endfor
     endif
     echo "Vivid: Plugin upgrade - DONE"
@@ -197,24 +205,27 @@ function! vivid#enable(...) abort
                 let l:index = get(s:names, l:plugin, '-1')
                 if l:index != -1
                     " TODO enable plugin
-                    let l:cmd = s:install_dir . "/" . s:plugins[l:index][2]
                     let s:plugins[l:index][3] = 1
-                    runtime
+                    echo s:plugin[l:index][2]
                 endif
             endif
         endfor
     else
+        l:index = 0
         for l:plugin in s:plugins
             " TODO enable plugin
-            echo l:plugin[1]
+            let s:plugins[l:index][3] = 1
+            echo l:plugin[2]
+
+            let l:index += 1
         endfor
     endif
 endfunction
 
 
-function! vivid#clean(...) abort
-
-endfunction
+"function! vivid#clean(...) abort
+"
+"endfunction
 
 
 " vim: set ts=4 sw=4 tw=80 et :
