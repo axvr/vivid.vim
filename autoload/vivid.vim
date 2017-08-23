@@ -123,8 +123,13 @@ function! vivid#add(remote, ...) abort
 endfunction
 
 
-" Install plugins (TODO async download)
+" Install plugins
+" TODO async download
+" TODO more validation
+" TODO windows compatible
 function! vivid#install(...) abort
+    let l:echo_message = "Vivid: Plugin install -"
+    echomsg l:echo_message "START"
     if a:0 != 0
         for l:plugin in a:000
             if has_key(s:names, l:plugin)
@@ -133,12 +138,18 @@ function! vivid#install(...) abort
                     let l:install_path = s:install_dir . "/" .
                                 \ s:plugins[l:index][2]
                     if !isdirectory(l:install_path)
-                        let l:cmd = "git clone " . s:plugins[l:index][1] . " " .
-                                    \ l:install_path
-                        echo system(l:cmd)
-                        echo "Installed: " s:plugins[l:index][0]
+                        let l:cmd = "git clone " . s:plugins[l:index][1] .
+                                    \ " " . l:install_path
+                        let l:clone = system(l:cmd)
+                        echomsg l:echo_message "Installed:"
+                                    \ s:plugins[l:index][0]
+                    else
+                        echomsg l:echo_message "Skipped:  "
+                                    \ s:plugins[l:index][0]
                     endif
                 endif
+            else
+                echomsg l:echo_message "Failed:   " l:plugin
             endif
         endfor
     else
@@ -146,12 +157,14 @@ function! vivid#install(...) abort
             let l:install_path = s:install_dir . "/" . l:plugin[2]
             if !isdirectory(l:install_path)
                 let l:cmd = "git clone " . l:plugin[1] . " " . l:install_path
-                echo system(l:cmd)
-                echo "Installed: " l:plugin[0]
+                let l:clone = system(l:cmd)
+                echomsg l:echo_message "Installed:" l:plugin[0]
+            else
+                echomsg l:echo_message "Skipped:  " l:plugin[0]
             endif
         endfor
     endif
-    echo "Vivid: Plugin install - DONE"
+    echomsg l:echo_message "DONE"
 endfunction
 
 
