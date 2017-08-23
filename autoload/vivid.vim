@@ -19,7 +19,7 @@ endif
 " | Name  | Remote Address                        | Install Path | Enabled |
 " |-------+---------------------------------------+--------------+---------|
 " | Vivid | https://github.com/axvr/Vivid.vim.git | Vivid        | 1       |
-let s:plugins = [['Vivid', 'https://github.com/axvr/Vivid.vim', 'Vivid.vim', 1]]
+let s:plugins = [['Vivid', 'https://git::@github.com/axvr/Vivid.vim', 'Vivid.vim', 1]]
 " Dictionary containing locations of plugins in the list (for quickly finding
 " a specific plugin, without requiring searching every item of the list)
 let s:names   = { 'Vivid': 0, }
@@ -58,15 +58,16 @@ function! vivid#add(remote, ...) abort
 
     " Create remote path for plugin
     " TODO add functionality for other sources and methods
+    " TODO windows shellescape()
     if a:remote =~ '^https:\/\/.\+'
         let l:remote = a:remote
     elseif a:remote =~ '^http:\/\/.\+'
         let l:remote = a:remote
         let l:remote = substitute(l:remote, '^http:\/\/', 'https://', '')
     elseif a:remote =~ '^.\+\/.\+'
-        let l:remote = 'https://github.com/' . a:remote . '.git'
+        let l:remote = 'https://git::@github.com/' . a:remote . '.git'
     else
-        echo "Remote address creation fail"
+        echo "Remote address creation fail:" a:remote
         return
     endif
 
@@ -82,6 +83,7 @@ function! vivid#add(remote, ...) abort
         let l:path = l:remote
         let l:path = split(l:path, "/")
         let l:path = l:path[-1]
+        let l:path = substitute(l:path, '\.git$', '', '')
         " TODO maybe extend path to avoid path collision
     endif
 
@@ -128,17 +130,28 @@ function! vivid#install(...) abort
             if has_key(s:names, l:plugin)
                 let l:index = get(s:names, l:plugin, '-1')
                 if l:index != -1
-                    " TODO install plugin
-                    echo s:plugins[l:index][1]
+                    let l:install_path = s:install_dir . "/" .
+                                \ s:plugins[l:index][2]
+                    if !isdirectory(l:install_path)
+                        let l:cmd = "git clone " . s:plugins[l:index][1] . " " .
+                                    \ l:install_path
+                        echo system(l:cmd)
+                        echo "Installed: " s:plugins[l:index][0]
+                    endif
                 endif
             endif
         endfor
     else
         for l:plugin in s:plugins
-            " TODO install plugin
-            echo l:plugin[1]
+            let l:install_path = s:install_dir . "/" . l:plugin[2]
+            if !isdirectory(l:install_path)
+                let l:cmd = "git clone " . l:plugin[1] . " " . l:install_path
+                echo system(l:cmd)
+                echo "Installed: " l:plugin[0]
+            endif
         endfor
     endif
+    echo "Vivid: Plugin install - DONE"
 endfunction
 
 
@@ -160,16 +173,29 @@ function! vivid#upgrade(...) abort
             echo l:plugin[1]
         endfor
     endif
+    echo "Vivid: Plugin upgrade - DONE"
 endfunction
 
 
-function! vivid#enable(name) abort
-
-endfunction
-
-
-function! vivid#enable_local(name) abort
-
+function! vivid#enable(...) abort
+    if a:0 != 0
+        for l:plugin in a:000
+            if has_key(s:names, l:plugin)
+                let l:index = get(s:names, l:plugin, '-1')
+                if l:index != -1
+                    " TODO enable plugin
+                    let l:cmd = s:install_dir . "/" . s:plugins[l:index][2]
+                    let s:plugins[l:index][3] = 1
+                    runtime
+                endif
+            endif
+        endfor
+    else
+        for l:plugin in s:plugins
+            " TODO enable plugin
+            echo l:plugin[1]
+        endfor
+    endif
 endfunction
 
 
