@@ -43,7 +43,7 @@ else
     let s:install_dir = s:vim_path
 endif
 
-" Allow manual setting of plugin directory by the user
+" Allow manual setting of plugin directory by the user, possibly use symlink
 "function! vivid#set_install_dir(path) abort
 "    let s:install_dir = expand(a:path)
 "endfunction
@@ -133,11 +133,12 @@ endfunction
 " Install plugins
 " TODO async download
 " TODO more validation
-" TODO windows compatible
+" TODO windows compatibility
 function! vivid#install(...) abort
     let l:echo_message = "Vivid: Plugin install -"
     echomsg l:echo_message "START"
     if a:0 != 0
+        " If arguments were passed to Vivid, install those plugins
         for l:plugin in a:000
             if has_key(s:names, l:plugin)
                 let l:index = get(s:names, l:plugin, '-1')
@@ -151,6 +152,8 @@ function! vivid#install(...) abort
                         echomsg l:echo_message "Installed:"
                                     \ s:plugins[l:index][0]
                     else
+                        " Plugin was already installed (if broken remove using
+                        " vivid#clean)
                         echomsg l:echo_message "Skipped:  "
                                     \ s:plugins[l:index][0]
                     endif
@@ -160,7 +163,7 @@ function! vivid#install(...) abort
             endif
         endfor
     else
-        let l:index = 0
+        " Install all plugins if no plugins were specified
         for l:plugin in s:plugins
             let l:install_path = s:install_dir . "/" . l:plugin[2]
             if !isdirectory(l:install_path)
@@ -168,9 +171,10 @@ function! vivid#install(...) abort
                 let l:clone = system(l:cmd)
                 echomsg l:echo_message "Installed:" l:plugin[0]
             else
+                " Plugin was already installed (if broken remove using
+                " vivid#clean)
                 echomsg l:echo_message "Skipped:  " l:plugin[0]
             endif
-            let l:index += 1
         endfor
     endif
     echomsg l:echo_message "DONE"
@@ -178,6 +182,7 @@ endfunction
 
 
 " Upgrade plugins (TODO async download)
+" possibly make use of git submodules
 function! vivid#upgrade(...) abort
     if a:0 != 0
         for l:plugin in a:000
@@ -204,19 +209,30 @@ endfunction
 
 function! vivid#enable(...) abort
     if a:0 != 0
+        " Enable specified plugins only
         for l:plugin in a:000
             if has_key(s:names, l:plugin)
                 let l:index = get(s:names, l:plugin, '-1')
                 if l:index != -1
+                    if !isdirectory(s:install_dir . "/" . s:plugins[l:index][2])
+                        call vivid#install(s:plugins[l:index][0])
+                    endif
                     let s:plugins[l:index][3] = 1
                     execute 'packadd ' . s:plugins[l:index][2]
                 endif
+            else
+                echomsg "Vivid: Plugin was not added:" l:plugin
             endif
         endfor
     else
+        " Enable all plugins because none were specified
+        " track index of plugin to modify the enabled value in s:plugins
         let l:index = 0
         for l:plugin in s:plugins
             if l:plugin[3] != 1
+                if !isdirectory(s:install_dir . "/" . l:plugin[2])
+                    call vivid#install()
+                endif
                 let s:plugins[l:index][3] = 1
                 execute 'packadd ' . l:plugin[2]
                 let l:index += 1
