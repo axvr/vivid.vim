@@ -28,24 +28,25 @@ let s:install_dir = ''
 
 
 " Set install directory automatically
-let s:nvim_path = $HOME . '/.config/nvim/bundle'
-let s:vim_path  = $HOME . '/.vim/bundle'
+let s:nvim_path = $HOME . '/.config/nvim/pack/vivid/opt'
+let s:vim_path  = $HOME . '/.vim/pack/vivid/opt'
+" TODO add more options for different types of vim
 if has('nvim')
     if !isdirectory(s:nvim_path)
-        call mkdir(s:nvim_path)
+        call mkdir(s:nvim_path, 'p')
     endif
     let s:install_dir = s:nvim_path
 else
     if !isdirectory(s:vim_path)
-        call mkdir(s:vim_path)
+        call mkdir(s:vim_path, 'p')
     endif
     let s:install_dir = s:vim_path
 endif
 
 " Allow manual setting of plugin directory by the user
-function! vivid#set_install_dir(path) abort
-    let s:install_dir = expand(a:path)
-endfunction
+"function! vivid#set_install_dir(path) abort
+"    let s:install_dir = expand(a:path)
+"endfunction
 
 
 " Add a plugin for Vivid to manage
@@ -104,7 +105,6 @@ function! vivid#add(remote, ...) abort
 
     " Default the auto-enabled to false (unless explicitly stated otherwise)
     if a:0 == 1 && has_key(l:info, 'enabled')
-        " TODO if set to 'enabled', enable plugin at end of vivid#add function
         let l:enabled = l:info['enabled']
     else
         let l:enabled = 0
@@ -119,6 +119,10 @@ function! vivid#add(remote, ...) abort
         " Add plugin to the s:names dictionary to find the info quickly
         let s:names[l:name] = s:next_location
         let s:next_location += 1
+    endif
+
+    if l:enabled == 1
+        call vivid#enable(l:name)
     endif
 
     return
@@ -186,7 +190,7 @@ function! vivid#upgrade(...) abort
             endif
         endfor
     else
-        l:index = 0
+        let l:index = 0
         for l:plugin in s:plugins
             " TODO upgrade plugin
             echo l:plugin[1]
@@ -204,20 +208,19 @@ function! vivid#enable(...) abort
             if has_key(s:names, l:plugin)
                 let l:index = get(s:names, l:plugin, '-1')
                 if l:index != -1
-                    " TODO enable plugin
                     let s:plugins[l:index][3] = 1
-                    echo s:plugin[l:index][2]
+                    execute 'packadd ' . s:plugins[l:index][2]
                 endif
             endif
         endfor
     else
-        l:index = 0
+        let l:index = 0
         for l:plugin in s:plugins
-            " TODO enable plugin
-            let s:plugins[l:index][3] = 1
-            echo l:plugin[2]
-
-            let l:index += 1
+            if l:plugin[3] != 1
+                let s:plugins[l:index][3] = 1
+                execute 'packadd ' . l:plugin[2]
+                let l:index += 1
+            endif
         endfor
     endif
 endfunction
