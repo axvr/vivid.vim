@@ -122,7 +122,7 @@ function! vivid#add(remote, ...) abort
     endif
 
     if l:enabled == 1
-        call vivid#enable(l:name)
+        call s:enable(l:name)
     endif
 
     return
@@ -217,7 +217,6 @@ function! vivid#enable(...) abort
         endfor
     else
         " Enable all plugins because none were specified
-        " track index of plugin to modify the enabled value in s:plugins
         for l:plugin in s:plugins
             call s:enable(l:plugin[0])
         endfor
