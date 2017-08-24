@@ -178,6 +178,7 @@ function! vivid#install(...) abort
         endfor
     endif
     echomsg l:echo_message "DONE"
+    return
 endfunction
 
 
@@ -204,6 +205,7 @@ function! vivid#upgrade(...) abort
         endfor
     endif
     echo "Vivid: Plugin upgrade - DONE"
+    return
 endfunction
 
 
@@ -211,34 +213,33 @@ function! vivid#enable(...) abort
     if a:0 != 0
         " Enable specified plugins only
         for l:plugin in a:000
-            if has_key(s:names, l:plugin)
-                let l:index = get(s:names, l:plugin, '-1')
-                if l:index != -1
-                    if !isdirectory(s:install_dir . "/" . s:plugins[l:index][2])
-                        call vivid#install(s:plugins[l:index][0])
-                    endif
-                    let s:plugins[l:index][3] = 1
-                    execute 'packadd ' . s:plugins[l:index][2]
-                endif
-            else
-                echomsg "Vivid: Plugin was not added:" l:plugin
-            endif
+            call s:enable(l:plugin)
         endfor
     else
         " Enable all plugins because none were specified
         " track index of plugin to modify the enabled value in s:plugins
-        let l:index = 0
         for l:plugin in s:plugins
-            if l:plugin[3] != 1
-                if !isdirectory(s:install_dir . "/" . l:plugin[2])
-                    call vivid#install()
-                endif
-                let s:plugins[l:index][3] = 1
-                execute 'packadd ' . l:plugin[2]
-                let l:index += 1
-            endif
+            call s:enable(l:plugin[0])
         endfor
     endif
+    return
+endfunction
+
+
+function! s:enable(plugin) abort
+    if has_key(s:names, a:plugin)
+        let l:index = get(s:names, a:plugin, -1)
+        if l:index != -1
+            if !isdirectory(s:install_dir . "/" . s:plugins[l:index][2])
+                call vivid#install(s:plugins[l:index][0])
+            endif
+            let s:plugins[l:index][3] = 1
+            execute 'packadd ' . s:plugins[l:index][2]
+        endif
+    else
+        echomsg "Vivid: Plugin was not enabled:" a:plugin
+    endif
+    return
 endfunction
 
 
