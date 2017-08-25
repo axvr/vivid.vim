@@ -7,12 +7,6 @@
 " ==============================================================================
 
 
-if &compatible
-    set nocompatible
-    filetype off
-endif
-
-
 " Main list for Vivid to manage all plugins
 " s:plugins = [[a, 1, 4], [b, 2, 5], [c, 3, 6],]
 "              ^brackets = rows  ^numbers = columns
@@ -43,7 +37,7 @@ else
     let s:install_dir = s:vim_path
 endif
 
-" Allow manual setting of plugin directory by the user, possibly use symlink
+" TODO Allow manual setting of plugin directory by the user, maybe use symlink
 "function! vivid#set_install_dir(path) abort
 "    let s:install_dir = expand(a:path)
 "endfunction
@@ -136,7 +130,6 @@ endfunction
 " TODO windows compatibility
 function! vivid#install(...) abort
     let l:echo_message = "Vivid: Plugin install -"
-    echomsg l:echo_message "START"
     if a:0 != 0
         " If arguments were passed to Vivid, install those plugins
         for l:plugin in a:000
@@ -177,7 +170,6 @@ function! vivid#install(...) abort
             endif
         endfor
     endif
-    echomsg l:echo_message "DONE"
     return
 endfunction
 
