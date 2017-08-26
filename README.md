@@ -29,7 +29,7 @@ Planned features:
 * Auto generates [help tags] for each plugins
 
 
-![Vivid Installing Plugins][screenshots/vivid-install.png]
+![Vivid Installing Plugins](screenshots/vivid-install.png)
 
 
 ---
