@@ -100,7 +100,9 @@ function! vivid#add(remote, ...) abort
 
     " Default the auto-enabled to false (unless explicitly stated otherwise)
     if a:0 == 1 && has_key(l:info, 'enabled')
-        let l:enabled = l:info['enabled']
+        if l:info['enabled'] == 0 || l:info['enabled'] == 1
+            let l:enabled = l:info['enabled']
+        endif
     else
         let l:enabled = 0
     endif
@@ -225,8 +227,10 @@ function! s:enable(plugin) abort
             if !isdirectory(s:install_dir . "/" . s:plugins[l:index][2])
                 call vivid#install(s:plugins[l:index][0])
             endif
-            let s:plugins[l:index][3] = 1
-            execute 'packadd ' . s:plugins[l:index][2]
+            if s:plugins[l:index][3] == 0
+                let s:plugins[l:index][3] = 1
+                execute 'packadd ' . s:plugins[l:index][2]
+            endif
         endif
     else
         echomsg "Vivid: Plugin was not enabled:" a:plugin
@@ -238,6 +242,24 @@ endfunction
 "function! vivid#clean(...) abort
 "
 "endfunction
+
+
+" Allows the user to check if a plugin is enabled or not
+" return  1 == enabled
+" return  0 == disabled
+" return -1 == error
+function! vivid#enabled(plugin) abort
+    if has_key(s:names, a:plugin)
+        let l:index = get(s:names, a:plugin, -1)
+        if l:index != -1
+            return s:plugins[l:index][3]
+        else
+            return -1
+        endif
+    else
+        return -1
+    endif
+endfunction
 
 
 " vim: set ts=4 sw=4 tw=80 et :
