@@ -50,6 +50,29 @@ To install Vivid run this command in a terminal emulator:
 
 Then to enable Vivid place ``packadd Vivid.vim`` at the top of your ``$MYVIMRC`` file.
 
+#### Vivid auto-install script
+
+This can be placed at the top of a ``$MYVIMRC`` to install Vivid when on a UNIX based computer, which does not have Vivid installed already. This makes your ``$MYVIMRC`` file more portable, and allow for instant use on other systems.
+
+##### Vim
+
+```vim
+if !filereadable(expand($HOME . '/.vim/pack/vivid/opt/Vivid.vim/autoload/vivid.vim'))
+    echomsg "Installing Vivid.vim"
+    silent !git clone https://github.com/axvr/Vivid.vim.git ~/.vim/pack/vivid/opt/Vivid.vim
+endif
+```
+
+##### Neovim
+
+```vim
+if !filereadable(expand($HOME . '/.config/nvim/pack/vivid/opt/Vivid.vim/autoload/vivid.vim'))
+    echomsg "Installing Vivid.vim"
+    silent !git clone https://github.com/axvr/Vivid.vim.git ~/.config/nvim/pack/vivid/opt/Vivid.vim
+endif
+```
+
+
 ### Using Vivid
 
 NOTE: By default Vivid enables no plugins, this is because of it's heavy focus on lazy loading and control. This behaviour can be reversed by including `call vivid#enable()` after adding all of the plugins to Vivid.

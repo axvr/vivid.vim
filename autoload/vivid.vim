@@ -20,6 +20,7 @@ let s:names   = { 'Vivid': 0, }
 let s:next_location = 1
 let s:install_dir = ''
 
+" TODO check is running neovim or vim 8+
 
 " Set install directory automatically
 let s:nvim_path = $HOME . '/.config/nvim/pack/vivid/opt'
