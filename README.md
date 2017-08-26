@@ -20,12 +20,13 @@
 * Install plugins
 * Enable plugins
 * Auto-enable plugins
-* Auto generates [help tags] for each plugins
+* Check if a plugin is enabled
 
 Planned features:
 
 * Update plugins
 * Remove unused plugins
+* Auto generates [help tags] for each plugins
 
 
 <!-- Image goes here -->
@@ -54,8 +55,6 @@ Then to enable Vivid place ``packadd Vivid.vim`` at the top of your ``$MYVIMRC``
 
 This can be placed at the top of a ``$MYVIMRC`` to install Vivid when on a UNIX based computer, which does not have Vivid installed already. This makes your ``$MYVIMRC`` file more portable, and allow for instant use on other systems.
 
-##### Vim
-
 ```vim
 if !filereadable(expand($HOME . '/.vim/pack/vivid/opt/Vivid.vim/autoload/vivid.vim'))
     echomsg "Installing Vivid.vim"
@@ -63,7 +62,7 @@ if !filereadable(expand($HOME . '/.vim/pack/vivid/opt/Vivid.vim/autoload/vivid.v
 endif
 ```
 
-##### Neovim
+The same but for Neovim:
 
 ```vim
 if !filereadable(expand($HOME . '/.config/nvim/pack/vivid/opt/Vivid.vim/autoload/vivid.vim'))
@@ -79,9 +78,11 @@ NOTE: By default Vivid enables no plugins, this is because of it's heavy focus o
 
 NOTE: Vivid currently only works with Git managed plugins.
 
+NOTE: When using Vivid, never use ``packloadall``, and never use ``packadd`` on any plugin that Vivid is managing. Using these command will cause Vivid to break.
+
 #### Adding Plugins
 
-Vivid will manage any plugins which are defined using the `vivid#add` function. Vivid provides many options when adding plugins.
+Vivid will manage any plugins which are defined using the ``vivid#add`` function. Vivid provides many options when adding plugins.
 
 ```vim
 packadd Vivid.vim " Required
@@ -99,15 +100,25 @@ call vivid#add('rhysd/clever-f.vim', { " Other options to provide to Vivid
 
 #### Installing Plugins
 
-* Install plugins which were added: `call vivid#install()`
+Vivid allows you to install plugins so you don't have to install them your self. The ``vivid#install()`` function can be used in two different ways. By providing no arguments to the install function, Vivid will install all Plugins which were added to Vivid. The other way is to provide arguments for the install function (plugin names) and Vivid will install only those plugins. e.g. ``call vivid#install('plugin-name-one', 'plugin-name-two')``
+
+If a plugin is enabled which is not installed, Vivid will automatically install that plugin.
+
+Sometimes a plugin may break, sometimes due user fiddling or even broken Git history. To fix this problem use the ``vivid#clean`` function and provide it the name of the plugin. This will remove all of the plugin information. After doing this install the plugin again.
 
 #### Enabling Plugins
 
-* Enable plugins: `call vivid#enable()`
+* Enable plugins: ``call vivid#enable()``
 
+#### Check Plugin Status
 
+Vivid allows you to write complex scripts in your ``$MYVIMRC``, one of the features it provides is checking whether a plugin is enabled or not. The simple feature opens many possibilities, such as commands are mapped when the plugin is enabled, or a different config and plugins in Neovim than in Vim when using the same configuration file.
 
+The function is ``vivid#enabled('plugin-name-here')``, and it takes one argument, the name of the plugin to check the status of.
 
+#### Clean Plugins
+
+*Pending*
 
 
 [Vivid]:https://github.com/axvr/Vivid.vim
