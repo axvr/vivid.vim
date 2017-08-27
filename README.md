@@ -43,11 +43,21 @@ Planned features:
 
 NOTE: Vivid currently does not fully work on Windows, compatibility for it is planned.
 
+NOTE: Vivid currently only works with Git managed plugins.
+
 ### Install Vivid
 
-To install Vivid run this command in a terminal emulator:
+To install Vivid on Vim run this command in a terminal emulator:
 
-``git clone https://github.com/axvr/Vivid.vim ~/.vim/pack/vivid/opt/Vivid.vim``
+``sh
+git clone https://github.com/axvr/Vivid.vim ~/.vim/pack/vivid/opt/Vivid.vim
+``
+
+To install Vivid on Neovim run this command:
+
+``sh
+git clone https://github.com/axvr/Vivid.vim ~/.config/nvim/pack/vivid/opt/Vivid.vim
+``
 
 Then to enable Vivid place ``packadd Vivid.vim`` at the top of your ``$MYVIMRC`` file.
 
@@ -74,11 +84,11 @@ endif
 
 ### Using Vivid
 
-NOTE: By default Vivid enables no plugins, this is because of it's heavy focus on lazy loading and control. This behaviour can be reversed by including `call vivid#enable()` after adding all of the plugins to Vivid.
+To enable Vivid the line ``packadd Vivid.vim`` must be added to the top of your ``$MYVIMRC``.
 
-NOTE: Vivid currently only works with Git managed plugins.
+By default Vivid enables no plugins, this is because of it's heavy focus on lazy loading and control. This behaviour can be reversed by including `call vivid#enable()` after adding all of the plugins to Vivid.
 
-NOTE: When using Vivid, never use ``packloadall``, and never use ``packadd`` on any plugin that Vivid is managing. Using these command will cause Vivid to break.
+NOTE: When using Vivid, never use the ``packloadall`` or the ``packadd`` on any plugin that Vivid is managing. Using these commands will cause Vivid to break. The exception is the ``packadd Vivid.vim`` at the begining of the ``$MYVIMRC``
 
 #### Adding Plugins
 
