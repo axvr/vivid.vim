@@ -26,6 +26,7 @@ function! s:compatible_check() abort
 if !has('packages')
     finish
 endif
+endfunction
 
 
 " Set install directory automatically
