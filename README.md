@@ -100,7 +100,7 @@ packadd Vivid.vim " Required
 " Examples of adding plugins to Vivid
 call vivid#add('rhysd/clever-f.vim') " Simple adding from GitHub (same as Vundle and Vim-Plug)
 call vivid#add('https://github.com/rhysd/clever-f.vim') " Using full remote address to plugin
-call vivid#add('rhysd/clever-f.vim', { 'enabled': 1, }) " Add and enable plugin by default
+call vivid#add('tpope/vim-fugitive', { 'enabled': 1, }) " Add and enable plugin by default
 call vivid#add('rhysd/clever-f.vim', { " Other options to provide to Vivid
         \ 'name': 'Clever-f',          " Change the name to use to refer to the pluguin
         \ 'path': 'clever-f.vim.git',  " Change the folder the plugin is in to avoid nameing collisions
@@ -130,6 +130,48 @@ The function is ``vivid#enabled('plugin-name-here')``, and it takes one argument
 
 *Pending*
 
+## Example Vim Config
+
+```vim
+" Example Vim Config File ($MYVIMRC)
+" ==================================
+
+packadd Vivid.vim   " Required
+
+" Code formatting
+call vivid#add('rhysd/vim-clang-format')         " Format files using Clang
+
+" Vim enhancements
+call vivid#add('rhysd/clever-f.vim',   { 'enabled': 1, })
+call vivid#add('jiangmiao/auto-pairs', { 'enabled': 1, }) " Smart brackets and quotes
+if has('nvim')
+    call vivid#add('majutsushi/tagbar')    " Display Tags of a File Easily     <-- :help tagbar
+endif
+
+augroup clang
+    au!
+    autocmd FileType c,h,cpp,hpp,cc,objc
+            \ call vivid#enable('vim-clang-format') 
+    if vivid#enabled('vim-clang-format') == 1
+        autocmd FileType c,h,cpp,hpp,cc,objc
+                \ nnoremap <buffer><Leader>cf :<C-u>ClangFormat<CR>
+        autocmd FileType c,h,cpp,hpp,cc,objc
+                \ vnoremap <buffer><Leader>cf :ClangFormat<CR>
+
+        " Clang Format Config
+        " TODO Java, JavaScript, Obj-C, C
+        autocmd FileType c,h,cpp,hpp,cc,objc
+                \ let g:clang_format#code_style = 'google'
+        autocmd FileType c,h,cpp,hpp,cc,objc
+                \ let g:clang_format#detect_style_file = 1
+    endif
+
+augroup END
+
+" Clever-f Config
+let g:clever_f_smart_case = 1
+let g:clever_f_across_no_line = 1
+```
 
 [Vivid]:https://github.com/axvr/Vivid.vim
 [Git]:http://git-scm.com
