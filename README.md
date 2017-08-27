@@ -29,6 +29,9 @@ Planned features:
 * Auto generates [help tags] for each plugins
 
 
+---
+
+
 ![Vivid Installing Plugins](screenshots/vivid-install.png)
 
 
@@ -60,26 +63,6 @@ git clone https://github.com/axvr/Vivid.vim ~/.config/nvim/pack/vivid/opt/Vivid.
 ```
 
 Then to enable Vivid place ``packadd Vivid.vim`` at the top of your ``$MYVIMRC`` file.
-
-#### Vivid auto-install script
-
-This can be placed at the top of a ``$MYVIMRC`` to install Vivid when on a UNIX based computer, which does not have Vivid installed already. This makes your ``$MYVIMRC`` file more portable, and allow for instant use on other systems.
-
-```vim
-if !filereadable(expand($HOME . '/.vim/pack/vivid/opt/Vivid.vim/autoload/vivid.vim'))
-    echomsg "Installing Vivid.vim"
-    silent !git clone https://github.com/axvr/Vivid.vim.git ~/.vim/pack/vivid/opt/Vivid.vim
-endif
-```
-
-The same but for Neovim:
-
-```vim
-if !filereadable(expand($HOME . '/.config/nvim/pack/vivid/opt/Vivid.vim/autoload/vivid.vim'))
-    echomsg "Installing Vivid.vim"
-    silent !git clone https://github.com/axvr/Vivid.vim.git ~/.config/nvim/pack/vivid/opt/Vivid.vim
-endif
-```
 
 
 ### Using Vivid
@@ -136,6 +119,7 @@ Outputs from this function are as follows:
 
 *Pending*
 
+<!--
 ## Example Vim Config
 
 ```vim
@@ -151,7 +135,7 @@ call vivid#add('rhysd/vim-clang-format')         " Format files using Clang
 call vivid#add('rhysd/clever-f.vim',   { 'enabled': 1, })
 call vivid#add('jiangmiao/auto-pairs', { 'enabled': 1, }) " Smart brackets and quotes
 if has('nvim')
-    call vivid#add('majutsushi/tagbar')    " Display Tags of a File Easily     <-- :help tagbar
+    call vivid#add('majutsushi/tagbar')    " Display Tags of a File Easily     <- :help tagbar
 endif
 
 augroup clang
@@ -178,6 +162,7 @@ augroup END
 let g:clever_f_smart_case = 1
 let g:clever_f_across_no_line = 1
 ```
+-->
 
 [Vivid]:https://github.com/axvr/Vivid.vim
 [Git]:http://git-scm.com

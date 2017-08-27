@@ -184,28 +184,39 @@ endfunction
 
 
 " Upgrade plugins (TODO async download)
-" possibly make use of git submodules
+" TODO frozen plugins
 function! vivid#upgrade(...) abort
     if a:0 != 0
+        " Upgrade specified plugins only
         for l:plugin in a:000
-            if has_key(s:names, l:plugin)
-                let l:index = get(s:names, l:plugin, '-1')
-                if l:index != -1
-                    " TODO upgrade plugin
-                    echo s:plugins[l:index][1]
-                endif
-            endif
+            call s:upgrade(l:plugin)
         endfor
     else
-        let l:index = 0
+        " Upgrade all plugins because none were specified
         for l:plugin in s:plugins
-            " TODO upgrade plugin
-            echo l:plugin[1]
-
-            let l:index += 1
+            call s:upgrade(l:plugin[0])
         endfor
     endif
-    echo "Vivid: Plugin upgrade - DONE"
+    return
+endfunction
+
+
+" TODO check output to determine if it was successful or not
+function! s:upgrade(plugin) abort
+    if has_key(s:names, a:plugin)
+        let l:index = get(s:names, a:plugin, -1)
+        if l:index != -1
+            echo s:plugins[l:index][1]
+            let l:install_path = s:install_dir . '/' . 
+                        \ s:plugins[l:index][2]
+            let l:cmd = 'git -C ' . l:install_path . ' pull'
+            let l:output = system(l:cmd)
+            echom "Vivid: Plugin upgrade - " s:plugins[l:index][0]
+            echom l:output
+        endif
+    else
+        echomsg "Error"
+    endif
     return
 endfunction
 
