@@ -203,19 +203,22 @@ endfunction
 
 " TODO check output to determine if it was successful or not
 function! s:upgrade(plugin) abort
+    let l:echo_message = "Vivid: Plugin upgrade -"
     if has_key(s:names, a:plugin)
         let l:index = get(s:names, a:plugin, -1)
         if l:index != -1
-            echo s:plugins[l:index][1]
             let l:install_path = s:install_dir . '/' . 
                         \ s:plugins[l:index][2]
             let l:cmd = 'git -C ' . l:install_path . ' pull'
             let l:output = system(l:cmd)
-            echom "Vivid: Plugin upgrade - " s:plugins[l:index][0]
-            echom l:output
+            if l:output =~ '^Already up-to-date\.'
+                echomsg l:echo_message "Up-to-date:" s:plugins[l:index][0]
+            else
+                echomsg l:output
+            endif
         endif
     else
-        echomsg "Error"
+        echomsg l:echo_message "Failed:" a:plugin
     endif
     return
 endfunction
@@ -251,7 +254,7 @@ function! s:enable(plugin, ...) abort
             endif
         endif
     else
-        echomsg "Vivid: Plugin was not enabled:" a:plugin
+        echomsg "Vivid: Plugin enable  - Failed:" a:plugin
     endif
     return
 endfunction
