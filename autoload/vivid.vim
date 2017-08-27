@@ -20,7 +20,13 @@ let s:names   = { 'Vivid': 0, }
 let s:next_location = 1
 let s:install_dir = ''
 
-" TODO check is running neovim or vim 8+
+
+" TODO check the compatibility check works
+function! s:compatible_check() abort
+if !has('packages')
+    finish
+endif
+
 
 " Set install directory automatically
 let s:nvim_path = $HOME . '/.config/nvim/pack/vivid/opt'
@@ -37,6 +43,7 @@ else
     endif
     let s:install_dir = s:vim_path
 endif
+
 
 " TODO Allow manual setting of plugin directory by the user, maybe use symlink
 "function! vivid#set_install_dir(path) abort
@@ -107,7 +114,6 @@ function! vivid#add(remote, ...) abort
         let l:enabled = 0
     endif
 
-
     " Check that the same plugin has not already been added to Vivid
     if !has_key(s:names, l:name)
         " Add plugin to the (2D) list
@@ -119,11 +125,10 @@ function! vivid#add(remote, ...) abort
     endif
 
     if l:enabled == 1
-        call s:enable(l:name)
+        call s:enable(l:name, 1)
     endif
 
     return
-
 endfunction
 
 
@@ -204,6 +209,7 @@ function! vivid#upgrade(...) abort
 endfunction
 
 
+" Enable plugins
 function! vivid#enable(...) abort
     if a:0 != 0
         " Enable specified plugins only
@@ -220,14 +226,14 @@ function! vivid#enable(...) abort
 endfunction
 
 
-function! s:enable(plugin) abort
+function! s:enable(plugin, ...) abort
     if has_key(s:names, a:plugin)
         let l:index = get(s:names, a:plugin, -1)
         if l:index != -1
             if !isdirectory(s:install_dir . "/" . s:plugins[l:index][2])
                 call vivid#install(s:plugins[l:index][0])
             endif
-            if s:plugins[l:index][3] == 0
+            if s:plugins[l:index][3] == 0 || exists("a:1")
                 let s:plugins[l:index][3] = 1
                 execute 'packadd ' . s:plugins[l:index][2]
             endif

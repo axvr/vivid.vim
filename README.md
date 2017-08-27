@@ -88,7 +88,7 @@ To enable Vivid the line ``packadd Vivid.vim`` must be added to the top of your 
 
 By default Vivid enables no plugins, this is because of it's heavy focus on lazy loading and control. This behaviour can be reversed by including `call vivid#enable()` after adding all of the plugins to Vivid.
 
-NOTE: When using Vivid, never use the ``packloadall`` or the ``packadd`` on any plugin that Vivid is managing. Using these commands will cause Vivid to break. The exception is the ``packadd Vivid.vim`` at the begining of the ``$MYVIMRC``.
+NOTE: When using Vivid, never use the ``packloadall`` or the ``packadd`` on any plugin that Vivid is managing. Using these commands will cause Vivid to break. The exception is the ``packadd Vivid.vim`` at the beginning of the ``$MYVIMRC``.
 
 #### Adding Plugins
 
@@ -125,6 +125,12 @@ Sometimes a plugin may break, sometimes due user fiddling or even broken Git his
 Vivid allows you to write complex scripts in your ``$MYVIMRC``, one of the features it provides is checking whether a plugin is enabled or not. The simple feature opens many possibilities, such as commands are mapped when the plugin is enabled, or a different config and plugins in Neovim than in Vim when using the same configuration file.
 
 The function is ``vivid#enabled('plugin-name-here')``, and it takes one argument, the name of the plugin to check the status of.
+
+Outputs from this function are as follows:
+* `0` : Disabled
+* `1` : Enabled
+* `-1` : Error (possibly incorrect name, or other reasons)
+
 
 #### Clean Plugins
 
