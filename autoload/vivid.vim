@@ -217,13 +217,15 @@ function! s:upgrade(plugin) abort
                 let l:output = split(l:output)
                 if l:output[0] =~ '^From$'
                     echomsg l:echo_message "Upgraded:" s:plugins[l:index][0]
+                elseif l:output[0] =~ '^fatal:$'
+                    echomsg l:echo_message "Failed:  " s:plugins[l:index][0]
                 else
-                    echomsg l:output
+                    echomsg l:output[0]
                 endif
             endif
         endif
     else
-        echomsg l:echo_message "Failed:" a:plugin
+        echomsg l:echo_message "Failed:  " a:plugin
     endif
     return
 endfunction
