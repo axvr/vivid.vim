@@ -214,7 +214,12 @@ function! s:upgrade(plugin) abort
             if l:output =~ '^Already up-to-date\.'
                 echomsg l:echo_message "Up-to-date:" s:plugins[l:index][0]
             else
-                echomsg l:output
+                let l:output = split(l:output)
+                if l:output[0] =~ '^From$'
+                    echomsg l:echo_message "Upgraded:" s:plugins[l:index][0]
+                else
+                    echomsg l:output
+                endif
             endif
         endif
     else
@@ -241,6 +246,7 @@ function! vivid#enable(...) abort
 endfunction
 
 
+" TODO fix outputs
 function! s:enable(plugin, ...) abort
     if has_key(s:names, a:plugin)
         let l:index = get(s:names, a:plugin, -1)
