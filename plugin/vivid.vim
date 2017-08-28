@@ -9,7 +9,7 @@ command! -nargs=+ -bar Plugin
             \ call vivid#add(<args>)
 
 " TODO add completion
-command! -nargs=* -bang PluginInstall
+command! -nargs=* -bar -bang PluginInstall
             \ call s:install_validate('!' == '<bang>', <f-args>)
 
 
@@ -27,7 +27,7 @@ endfunction
 
 
 " TODO add completion
-command! -nargs=* -bang PluginEnable
+command! -nargs=* -bar -bang PluginEnable
             \ call s:enable_validate('!' == '<bang>', <f-args>)
 
 
@@ -44,7 +44,25 @@ function! s:enable_validate(bang, ...)
 endfunction
 
 
-" TODO PluginClean, PluginUpgrade
+" TODO add completion
+command! -nargs=* -bar -bang PluginUpgrade
+            \ call s:upgrade_validate('!' == '<bang>', <f-args>)
+
+
+function! s:upgrade_validate(bang, ...)
+    if a:bang
+        call vivid#upgrade()
+    elseif a:0 == 0
+        echo "No arguments given"
+    else
+        for l:plugin in a:000
+            call vivid#upgrade(l:plugin)
+        endfor
+    endif
+endfunction
+
+
+" TODO PluginClean
 
 
 " vim: set ts=4 sw=4 tw=80 et :

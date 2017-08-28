@@ -201,7 +201,6 @@ function! vivid#upgrade(...) abort
 endfunction
 
 
-" TODO check output to determine if it was successful or not
 function! s:upgrade(plugin) abort
     let l:echo_message = "Vivid: Plugin upgrade -"
     if has_key(s:names, a:plugin)
@@ -215,6 +214,7 @@ function! s:upgrade(plugin) abort
                 echomsg l:echo_message "Up-to-date:" s:plugins[l:index][0]
             else
                 let l:output = split(l:output)
+                " TODO give more information
                 if l:output[0] =~ '^From$'
                     echomsg l:echo_message "Upgraded:" s:plugins[l:index][0]
                 elseif l:output[0] =~ '^fatal:$'
