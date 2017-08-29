@@ -12,19 +12,19 @@
 
 ## About
 
-[Vivid] aims to give back control to [Vim] user's plugin management, allowing users to manage as much or as little of their plugins as they wish. Vivid is also designed to be fast, minimal & efficient.
+[Vivid] aims to give control to [Vim] user's plugin management, allowing users to manage as much or as little of their plugins as they wish. Vivid is also designed to be fast, minimal & efficient.
 
 
 [Vivid] allows you to:
 
 * Install plugins
+* Update plugins
 * Enable plugins
 * Auto-enable plugins
 * Check if a plugin is enabled
 
 Planned features:
 
-* Update plugins
 * Remove unused plugins
 * Auto generates [help tags] for each plugins
 
@@ -98,6 +98,11 @@ Vivid allows you to install plugins so you don't have to install them your self.
 If a plugin is enabled which is not installed, Vivid will automatically install that plugin.
 
 Sometimes a plugin may break, sometimes due user fiddling or even broken Git history. To fix this problem use the ``vivid#clean`` function and provide it the name of the plugin. This will remove all of the plugin information. After doing this install the plugin again.
+
+
+#### Upgrading Plugins
+
+TODO: Write documentation on this
 
 #### Enabling Plugins
 
