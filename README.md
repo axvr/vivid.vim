@@ -102,11 +102,11 @@ Sometimes a plugin may break, sometimes due user fiddling or even broken Git his
 
 #### Upgrading Plugins
 
-TODO: Write documentation on this
+* Upgrading plugins: `call vivid#upgrade()`, `PluginUpgrade`
 
 #### Enabling Plugins
 
-* Enable plugins: ``call vivid#enable()``
+* Enable plugins: `call vivid#enable()`, `PluginEnable`
 
 #### Check Plugin Status
 

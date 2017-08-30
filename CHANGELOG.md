@@ -46,7 +46,7 @@ Leave 3 lines between previous change log item -->
 
 ---
 
-## [v1.0.0] - 2017-XX-XX
+## [1.0.0] - 2017-XX-XX
 
 ### Added
 * [#5] Install plugins
@@ -58,6 +58,9 @@ Leave 3 lines between previous change log item -->
 
 
 
+## [Pre 1.0.0]
+
+* See [Vivid-Legacy.vim](https://github.com/axvr/Vivid-Legacy.vim) and it's [change log](https://github.com/axvr/Vivid-Legacy.vim/blob/master/CHANGELOG.md) for changes before the rewrite.
 
 
 
