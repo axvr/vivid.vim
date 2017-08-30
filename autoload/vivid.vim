@@ -19,9 +19,10 @@ let s:plugins = [['Vivid', 'https://git::@github.com/axvr/Vivid.vim', 'Vivid.vim
 let s:names   = { 'Vivid': 0, }
 let s:next_location = 1
 let s:install_dir = ''
+" TODO print more information to user about upgrades etc.
+"let g:vivid#verbose = 0
 
-
-" TODO check the compatibility check works
+" TODO check the compatibility check works & check git version > 1.8.5
 function! s:compatible_check() abort
 if !has('packages')
     finish
@@ -46,7 +47,7 @@ else
 endif
 
 
-" TODO Allow manual setting of plugin directory by the user, maybe use symlink
+" TODO Allow manual setting of plugin directory by the user, use symbolic links
 "function! vivid#set_install_dir(path) abort
 "    let s:install_dir = expand(a:path)
 "endfunction
@@ -185,6 +186,8 @@ endfunction
 
 " Upgrade plugins (TODO async download)
 " TODO frozen plugins
+" TODO attempt to make Vivid use new versions of Plugins after update
+"   without having to restart Vim
 function! vivid#upgrade(...) abort
     if a:0 != 0
         " Upgrade specified plugins only
