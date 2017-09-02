@@ -32,7 +32,7 @@ Planned features:
 ---
 
 
-![Vivid Installing Plugins](screenshots/vivid-install.png)
+![Vivid Upgrading Plugins](screenshots/vivid-upgrade.png)
 
 
 ---
