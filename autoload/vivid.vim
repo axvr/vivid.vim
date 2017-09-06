@@ -21,19 +21,6 @@ let s:install_dir = ''
 " TODO print more information to user about upgrades etc.
 "let g:vivid#verbose = 0
 
-" TODO check git version > 1.8.5
-function! s:compatibility_check() abort
-    "let l:git_version = system('git --version')
-    "let l:git_version = split(l:output)
-    "let l:git_version = substitute(l:git_version[2], '\.', '', '')
-    "call str2nr(l:git_version)
-    "echomsg l:git_version " Problem due to version numbers like 1.12.3.2 
-    if !has('packages')  "|| l:git_version < 185 
-        echomsg "Vivid: Incompatible version of Vim"
-        finish
-    endif
-endfunction
-
 
 " Set install directory automatically
 let s:nvim_path = $HOME . '/.config/nvim/pack/vivid/opt'
@@ -67,7 +54,6 @@ endif
 "     \ } )
 " Arguments: 'remote', { 'name': 'string', 'path': 'string', 'enabled': boolean }
 function! vivid#add(remote, ...) abort
-    call s:compatibility_check()
 
     " Create remote path for plugin
     " TODO add functionality for other sources and methods
@@ -144,7 +130,6 @@ endfunction
 " TODO async download
 " TODO windows compatibility
 function! vivid#install(...) abort
-    call s:compatibility_check()
     let l:echo_message = "Vivid: Plugin install -"
     if a:0 != 0
         " If arguments were passed to Vivid, install those plugins
@@ -193,7 +178,6 @@ endfunction
 " Upgrade plugins (TODO async download)
 " TODO frozen plugins
 function! vivid#upgrade(...) abort
-    call s:compatibility_check()
     if a:0 != 0
         " Upgrade specified plugins only
         for l:plugin in a:000
@@ -240,7 +224,6 @@ endfunction
 
 " Enable plugins
 function! vivid#enable(...) abort
-    call s:compatibility_check()
     if a:0 != 0
         " Enable specified plugins only
         for l:plugin in a:000
