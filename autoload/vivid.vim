@@ -2,7 +2,6 @@
 " Name:         Vivid.vim
 " Author:       Alex Vear
 " HomePage:     https://github.com/axvr/Vivid.vim
-" Readme:       https://github.com/axvr/Vivid.vim/blob/master/README.md
 " Version:      1.0.0
 " ==============================================================================
 
@@ -24,9 +23,9 @@ let s:install_dir = ''
 
 " TODO check the compatibility check works & check git version > 1.8.5
 function! s:compatible_check() abort
-if !has('packages')
-    finish
-endif
+    if !has('packages')
+        finish
+    endif
 endfunction
 
 
@@ -60,7 +59,7 @@ endif
 "     \ 'path': 'clever-f.vim',
 "     \ 'enabled': 1,
 "     \ } )
-" Arguments: 'remote', { 'name': 'name', 'path': 'path', 'enabled': 'enabled' }
+" Arguments: 'remote', { 'name': 'string', 'path': 'string', 'enabled': boolean }
 function! vivid#add(remote, ...) abort
 
     " Create remote path for plugin
@@ -74,7 +73,7 @@ function! vivid#add(remote, ...) abort
     elseif a:remote =~ '^.\+\/.\+'
         let l:remote = 'https://git::@github.com/' . a:remote . '.git'
     else
-        echo "Remote address creation fail:" a:remote
+        echomsg "Vivid: Remote address creation fail:" a:remote
         return
     endif
 
@@ -214,21 +213,21 @@ function! s:upgrade(plugin) abort
             let l:cmd = 'git -C ' . l:install_path . ' pull'
             let l:output = system(l:cmd)
             if l:output =~ '^Already up-to-date\.'
-                echomsg l:echo_message "Up-to-date:" s:plugins[l:index][0]
+                echomsg l:echo_message "Latest:   " s:plugins[l:index][0]
             else
                 let l:output = split(l:output)
                 " TODO give more information
                 if l:output[0] =~ '^From$'
-                    echomsg l:echo_message "Upgraded:" s:plugins[l:index][0]
+                    echomsg l:echo_message "Upgraded: " s:plugins[l:index][0]
                 elseif l:output[0] =~ '^fatal:$'
-                    echomsg l:echo_message "Failed:  " s:plugins[l:index][0]
+                    echomsg l:echo_message "Failed:   " s:plugins[l:index][0]
                 else
                     echomsg l:output[0]
                 endif
             endif
         endif
     else
-        echomsg l:echo_message "Failed:  " a:plugin
+        echomsg l:echo_message "Failed:   " a:plugin
     endif
     return
 endfunction
@@ -265,7 +264,7 @@ function! s:enable(plugin, ...) abort
             endif
         endif
     else
-        echomsg "Vivid: Plugin enable  - Failed:" a:plugin
+        echomsg "Vivid: Plugin enable  - Failed:   " a:plugin
     endif
     return
 endfunction
