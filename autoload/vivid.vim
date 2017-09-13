@@ -263,17 +263,17 @@ endfunction
 
 
 " Allows the user to check if a plugin is enabled or not
-" return values:  1 == enabled, 0 == disabled, -1 == error
+" return values:  1 == enabled, 0 == disabled or not a plugin
 function! vivid#enabled(plugin) abort
     if has_key(s:names, a:plugin)
         let l:index = get(s:names, a:plugin, -1)
         if l:index != -1
             return s:plugins[l:index][3]
         else
-            return -1
+            return 0
         endif
     else
-        return -1
+        return 0
     endif
 endfunction
 
