@@ -38,10 +38,18 @@ else
     let s:install_dir = s:vim_path
 endif
 
+" Generate helptags
+function! s:gen_helptags(doc) abort
+    if isdirectory(a:doc)
+        execute 'helptags ' . a:doc
+    endif
+endfunction
+call s:gen_helptags(expand(s:install_dir . '/' . s:plugins[0][2] . '/doc/'))
 
 " TODO Allow manual setting of plugin directory by the user, use symbolic links
 "function! vivid#set_install_dir(path) abort
 "    let s:install_dir = expand(a:path)
+"    call s:gen_helptags(expand(s:install_dir . '/' . s:plugins[0][2] . '/doc/'))
 "endfunction
 
 
@@ -247,7 +255,9 @@ function! s:enable(plugin, ...) abort
             endif
             if s:plugins[l:index][3] == 0 || exists("a:1")
                 let s:plugins[l:index][3] = 1
-                execute 'packadd ' . s:plugins[l:index][2]
+                silent execute 'packadd ' . s:plugins[l:index][2]
+                let l:doc = expand(s:install_dir . '/' . s:plugins[l:index][2] . '/doc/')
+                call s:gen_helptags(l:doc)
             endif
         endif
     else
@@ -265,17 +275,12 @@ endfunction
 " Allows the user to check if a plugin is enabled or not
 " return values:  1 == enabled, 0 == disabled or not a plugin
 function! vivid#enabled(plugin) abort
-    if has_key(s:names, a:plugin)
-        let l:index = get(s:names, a:plugin, -1)
-        if l:index != -1
-            return s:plugins[l:index][3]
-        else
-            return 0
-        endif
-    else
-        return 0
+    let l:index = get(s:names, a:plugin, -1)
+    if l:index != -1
+        return s:plugins[l:index][3]
+    else | return 0
     endif
 endfunction
 
 
-" vim: set ts=4 sw=4 tw=80 et :
+" vim: set ts=4 sw=4 tw=80 et ft=vim fdm=marker fmr={{{,}}} :

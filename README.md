@@ -22,11 +22,11 @@
 * Enable plugins
 * Auto-enable plugins
 * Check if a plugin is enabled
+* Auto generates [help tags] for each plugins
 
 Planned features:
 
 * Remove unused plugins
-* Auto generates [help tags] for each plugins
 
 
 ---
@@ -115,9 +115,8 @@ Vivid allows you to write complex scripts in your ``$MYVIMRC``, one of the featu
 The function is ``vivid#enabled('plugin-name-here')``, and it takes one argument, the name of the plugin to check the status of.
 
 Outputs from this function are as follows:
-* `0` : Disabled
+* `0` : Disabled or not added for Vivid to manage
 * `1` : Enabled
-* `-1` : Error (possibly incorrect name, or other reasons)
 
 
 #### Clean Plugins
