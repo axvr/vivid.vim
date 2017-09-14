@@ -160,11 +160,11 @@ function! s:install(plugin) abort
             " TODO verbose mode
             if l:output =~# '\m\C^fatal: repository '
                 " 'Repository does not exist'
-                echomsg l:echo_message 'Failed:   ' a:plugin 
+                echomsg l:echo_message 'Failed:   ' a:plugin
             elseif l:output =~# '\m\C^Cloning into '
                 echomsg l:echo_message 'Installed:' s:plugins[l:index][0]
             else
-                echomsg l:echo_message 'Failed:   ' a:plugin 
+                echomsg l:echo_message 'Failed:   ' a:plugin
             endif
         else
             " Plugin already installed. If broken, remove with vivid#clean
@@ -199,7 +199,7 @@ function! s:upgrade(plugin) abort
     let l:echo_message = 'Vivid: Plugin upgrade -'
     let l:index = get(s:names, a:plugin, -1)
     if l:index != -1
-        let l:install_path = s:install_dir . '/' . 
+        let l:install_path = s:install_dir . '/' .
                     \ s:plugins[l:index][2]
         let l:cmd = 'git -C ' . l:install_path . ' pull'
         let l:output = system(l:cmd)

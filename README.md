@@ -27,6 +27,13 @@
 Planned features:
 
 * Remove unused plugins
+* Async upgrade and install of plugins
+* Windows support
+* Local plugin repositories (file://)
+* Freeze plugins to a specific version or commit
+* Upgrade by tags
+* Upgrade from a chosen branch
+* Vim help doc (similar to the [Vivid wiki])
 
 
 ---
@@ -40,55 +47,67 @@ Planned features:
 
 ## Quick Start
 
-### Dependencies
+See the [Vivid wiki] for more information, examples and a [FAQ].
+
+### [Dependencies](https://github.com/axvr/Vivid.vim/wiki/Installing-Vivid#what-dependencies-does-vivid-require)
 
 [Vivid] requires that the [Git] VCS is installed on your system, including [Vim] (8.0+) or [Neovim].
 
-NOTE: Vivid currently does not fully work on Windows, compatibility for it is planned.
+NOTE: Vivid only works with Git managed plugins.
 
-NOTE: Vivid currently only works with Git managed plugins.
 
-### Install Vivid
+### [Install Vivid]
 
 To install Vivid on Vim run this command in a terminal emulator:
 
-```sh
+```bash
 git clone https://github.com/axvr/Vivid.vim ~/.vim/pack/vivid/opt/Vivid.vim
 ```
 
-To install Vivid on Neovim run this command:
+Alternatively, you can install Vivid for Neovim by running this command:
 
-```sh
+```bash
 git clone https://github.com/axvr/Vivid.vim ~/.config/nvim/pack/vivid/opt/Vivid.vim
 ```
 
-Then to enable Vivid place ``packadd Vivid.vim`` at the top of your ``$MYVIMRC`` file.
+Then to enable Vivid place ``packadd Vivid.vim`` at the top of your ``$MYVIMRC`` file. No other boilerplate code is required in your Vim config.
 
 
-### Using Vivid
+### [Using Vivid]
 
-To enable Vivid the line ``packadd Vivid.vim`` must be added to the top of your ``$MYVIMRC``.
+To enable Vivid the line `packadd Vivid.vim` must be added to your `$MYVIMRC` before any plugin definitions or plugin settings.
 
-By default Vivid enables no plugins, this is because of it's heavy focus on lazy loading and control. This behaviour can be reversed by including `call vivid#enable()` after adding all of the plugins to Vivid.
+By default Vivid enables no plugins, this is because of it's heavy focus on lazy loading and control. This behaviour can be reversed by including `call vivid#enable()` or `PluginEnable!` after adding all of the plugins to Vivid.
 
-NOTE: When using Vivid, never use the ``packloadall`` or the ``packadd`` on any plugin that Vivid is managing. Using these commands will cause Vivid to break. The exception is the ``packadd Vivid.vim`` at the beginning of the ``$MYVIMRC``.
+NOTE: When using Vivid, never use the ``packloadall`` or the ``packadd`` on any plugin that Vivid is managing. Using these commands will cause Vivid to break for that session. The exception is the ``packadd Vivid.vim`` before any plugin config.
 
 #### Adding Plugins
 
-Vivid will manage any plugins which are defined using the ``vivid#add`` function. Vivid provides many options when adding plugins.
+Vivid will manage any plugins which are defined using the ``vivid#add`` function, or the `Plugin` command. Vivid provides many options when adding plugins. The commands are based off of the [Vundle] commands (where [Vivid's origins] are)
 
 ```vim
 packadd Vivid.vim " Required
 
-" Examples of adding plugins to Vivid
-call vivid#add('rhysd/clever-f.vim') " Simple adding from GitHub (same as Vundle and Vim-Plug)
-call vivid#add('https://github.com/rhysd/clever-f.vim') " Using full remote address to plugin
+" Examples of adding plugins to Vivid (using the function)
+call vivid#add('tpope/vim-fugitive')            " Simple adding from GitHub (same as Vundle and Vim-Plug)
+call vivid#add('https://github.com/tpope/vim-fugitive') " Using full remote address to plugin
 call vivid#add('tpope/vim-fugitive', { 'enabled': 1, }) " Add and enable plugin by default
-call vivid#add('rhysd/clever-f.vim', { " Other options to provide to Vivid
-        \ 'name': 'Clever-f',          " Change the name to use to refer to the pluguin
-        \ 'path': 'clever-f.vim.git',  " Change the folder the plugin is in to avoid nameing collisions
-        \ 'enabled': 1,                " Auto-enable plugin
+call vivid#add('tpope/vim-fugitive', {          " Other options to provide to Vivid
+        \ 'name': 'Fugitive',                   " Change the name to use to refer to the pluguin
+        \ 'path': 'fugitive.vim',               " Change the folder the plugin is in to avoid nameing collisions
+        \ 'enabled': 1,                         " Auto-enable plugin, can be set to 1 or 0, the default is 0
         })
+
+
+" Examples of adding plugins to Vivid (using the command)
+Plugin 'tpope/vim-fugitive'                     " Simple adding from GitHub (same as Vundle and Vim-Plug)
+Plugin 'https://github.com/tpope/vim-fugitive'  " Using full remote address to plugin
+Plugin 'tpope/vim-fugitive', { 'enabled': 1, }  " Add and enable plugin by default
+Plugin 'tpope/vim-fugitive', {                  " Other options to provide to Vivid
+        \ 'name': 'Fugitive',                   " Change the name to use to refer to the pluguin
+        \ 'path': 'fugitive.vim',               " Change the folder the plugin is in to avoid nameing collisions
+        \ 'enabled': 1,                         " Auto-enable plugin, can be set to 1 or 0, the default is 0
+        }
 ```
 
 #### Installing Plugins
@@ -121,52 +140,10 @@ Outputs from this function are as follows:
 
 #### Clean Plugins
 
-*Pending*
+*This feature is currently a work in progress*
 
-<!--
-## Example Vim Config
 
-```vim
-" Example Vim Config File ($MYVIMRC)
-" ==================================
-
-packadd Vivid.vim   " Required
-
-" Code formatting
-call vivid#add('rhysd/vim-clang-format')         " Format files using Clang
-
-" Vim enhancements
-call vivid#add('rhysd/clever-f.vim',   { 'enabled': 1, })
-call vivid#add('jiangmiao/auto-pairs', { 'enabled': 1, }) " Smart brackets and quotes
-if has('nvim')
-    call vivid#add('majutsushi/tagbar')    " Display Tags of a File Easily     <- :help tagbar
-endif
-
-augroup clang
-    au!
-    autocmd FileType c,h,cpp,hpp,cc,objc
-            \ call vivid#enable('vim-clang-format') 
-    if vivid#enabled('vim-clang-format') == 1
-        autocmd FileType c,h,cpp,hpp,cc,objc
-                \ nnoremap <buffer><Leader>cf :<C-u>ClangFormat<CR>
-        autocmd FileType c,h,cpp,hpp,cc,objc
-                \ vnoremap <buffer><Leader>cf :ClangFormat<CR>
-
-        " Clang Format Config
-        " TODO Java, JavaScript, Obj-C, C
-        autocmd FileType c,h,cpp,hpp,cc,objc
-                \ let g:clang_format#code_style = 'google'
-        autocmd FileType c,h,cpp,hpp,cc,objc
-                \ let g:clang_format#detect_style_file = 1
-    endif
-
-augroup END
-
-" Clever-f Config
-let g:clever_f_smart_case = 1
-let g:clever_f_across_no_line = 1
-```
--->
+<!-- Links -->
 
 [Vivid]:https://github.com/axvr/Vivid.vim
 [Git]:http://git-scm.com
@@ -174,5 +151,11 @@ let g:clever_f_across_no_line = 1
 [Neovim]:https://neovim.io
 [runtime path]:http://vimdoc.sourceforge.net/htmldoc/options.html#%27runtimepath%27
 [help tags]:http://vimdoc.sourceforge.net/htmldoc/helphelp.html#:helptags
-
+[Vivid wiki]:https://github.com/axvr/Vivid.vim/wiki
+[Dependencies]:https://github.com/axvr/Vivid.vim/wiki/Installing-Vivid#what-dependencies-does-vivid-require
+[Install Vivid]:https://github.com/axvr/Vivid.vim/wiki/Installing-Vivid#how-do-i-install-vivid
+[Using Vivid]:https://github.com/axvr/Vivid.vim/wiki/Managing-Plugins
+[FAQ]:https://github.com/axvr/Vivid.vim/wiki/FAQ
+[Vivid's origins]:https://github.com/axvr/Vivid-Legacy.vim
+[Vundle]:https://github.com/VundleVim/Vundle.vim
 
