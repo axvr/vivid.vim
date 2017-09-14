@@ -155,14 +155,23 @@ function! s:install(plugin) abort
         let l:install_path = s:install_dir . '/' . s:plugins[l:index][2]
         if !isdirectory(l:install_path)
             let l:cmd = 'git clone ' . s:plugins[l:index][1] . ' ' . l:install_path
-            let l:clone = system(l:cmd)
+            let l:output = system(l:cmd)
             " TODO check clone message
-            echomsg l:echo_message 'Installed:' s:plugins[l:index][0]
+            " TODO verbose mode
+            if l:output =~# '\m\C^fatal: repository '
+                " 'Repository does not exist'
+                echomsg l:echo_message 'Failed:   ' l:plugin 
+            elseif l:output =~# '\m\C^Cloning into '
+                echomsg l:echo_message 'Installed:' s:plugins[l:index][0]
+            else
+                echomsg l:echo_message 'Failed:   ' l:plugin 
+            endif
         else
-            " Plugin nalready installed. If broken, remove with vivid#clean
+            " Plugin already installed. If broken, remove with vivid#clean
             echomsg l:echo_message 'Skipped:  ' s:plugins[l:index][0]
         endif
     else
+        " Plugin is not being managed
         echomsg l:echo_message 'Failed:   ' l:plugin
     endif
     return
