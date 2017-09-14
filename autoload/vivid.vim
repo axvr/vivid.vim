@@ -150,7 +150,7 @@ endfunction
 
 function! s:install(plugin) abort
     let l:echo_message = 'Vivid: Plugin install -'
-    let l:index = get(s:names, l:plugin, -1)
+    let l:index = get(s:names, a:plugin, -1)
     if l:index != -1
         let l:install_path = s:install_dir . '/' . s:plugins[l:index][2]
         if !isdirectory(l:install_path)
@@ -160,11 +160,11 @@ function! s:install(plugin) abort
             " TODO verbose mode
             if l:output =~# '\m\C^fatal: repository '
                 " 'Repository does not exist'
-                echomsg l:echo_message 'Failed:   ' l:plugin 
+                echomsg l:echo_message 'Failed:   ' a:plugin 
             elseif l:output =~# '\m\C^Cloning into '
                 echomsg l:echo_message 'Installed:' s:plugins[l:index][0]
             else
-                echomsg l:echo_message 'Failed:   ' l:plugin 
+                echomsg l:echo_message 'Failed:   ' a:plugin 
             endif
         else
             " Plugin already installed. If broken, remove with vivid#clean
@@ -172,7 +172,7 @@ function! s:install(plugin) abort
         endif
     else
         " Plugin is not being managed
-        echomsg l:echo_message 'Failed:   ' l:plugin
+        echomsg l:echo_message 'Failed:   ' a:plugin
     endif
     return
 endfunction
