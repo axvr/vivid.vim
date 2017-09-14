@@ -16,8 +16,8 @@ command! -nargs=* -bar -bang PluginInstall
 function! s:install_validate(bang, ...) abort
     if a:bang
         call vivid#install()
-    elseif a:0 == 0
-        echoerr 'No arguments given. To install all plugins run :PluginInstall!'
+    elseif empty(a:000)
+        echo 'No arguments given. To install all plugins run :PluginInstall!'
     else
         for l:plugin in a:000
             call vivid#install(l:plugin)
@@ -34,8 +34,8 @@ command! -nargs=* -bar -bang PluginEnable
 function! s:enable_validate(bang, ...) abort
     if a:bang
         call vivid#enable()
-    elseif a:0 == 0
-        echoerr 'No arguments given. To enable all plugins run :PluginEnable!'
+    elseif empty(a:000)
+        echo 'No arguments given. To enable all plugins run :PluginEnable!'
     else
         for l:plugin in a:000
             call vivid#enable(l:plugin)
@@ -52,8 +52,8 @@ command! -nargs=* -bar -bang PluginUpgrade
 function! s:upgrade_validate(bang, ...) abort
     if a:bang
         call vivid#upgrade()
-    elseif a:0 == 0
-        echoerr 'No arguments given. To upgrade all plugins run :PluginUpgrade!'
+    elseif empty(a:000)
+        echo 'No arguments given. To upgrade all plugins run :PluginUpgrade!'
     else
         for l:plugin in a:000
             call vivid#upgrade(l:plugin)

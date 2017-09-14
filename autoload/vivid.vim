@@ -66,11 +66,8 @@ function! vivid#add(remote, ...) abort
     " Create remote path for plugin
     " TODO add functionality for other sources and methods
     " TODO windows shellescape()
-    if a:remote =~? '\m\C^https:\/\/.\+'
+    if a:remote =~? '\m\C^https:\/\/.\+' || a:remote =~? '\m\C^http:\/\/.\+'
         let l:remote = a:remote
-    elseif a:remote =~? '\m\C^http:\/\/.\+'
-        let l:remote = a:remote
-        let l:remote = substitute(l:remote, '\m\C^http:\/\/', 'https://', '')
     elseif a:remote =~? '\m\C^.\+\/.\+'
         let l:remote = 'https://git::@github.com/' . a:remote . '.git'
     else
@@ -91,7 +88,6 @@ function! vivid#add(remote, ...) abort
         let l:path = split(l:path, '/')
         let l:path = l:path[-1]
         let l:path = substitute(l:path, '\m\C\.git$', '', '')
-        " TODO maybe extend path to avoid path collisions
     endif
 
     " Create the name from the remote address (unless one was given)
@@ -101,7 +97,7 @@ function! vivid#add(remote, ...) abort
         let l:name = l:remote
         let l:name = split(l:name, '/')
         let l:name = l:name[-1]
-        " for some unknown reason, split() does not work on '.'
+        " for some reason, split() does not work on '.'
         let l:name = substitute(l:name, '\m\C\.', ';', '')
         let l:name = split(l:name, ';')
         let l:name = l:name[0]
@@ -138,46 +134,36 @@ endfunction
 " TODO async download
 " TODO windows compatibility
 function! vivid#install(...) abort
-    let l:echo_message = 'Vivid: Plugin install -'
-    if a:0 != 0
-        " If arguments were passed to Vivid, install those plugins
-        for l:plugin in a:000
-            if has_key(s:names, l:plugin)
-                let l:index = get(s:names, l:plugin, '-1')
-                if l:index != -1
-                    let l:install_path = s:install_dir . '/' .
-                                \ s:plugins[l:index][2]
-                    if !isdirectory(l:install_path)
-                        let l:cmd = 'git clone ' . s:plugins[l:index][1] .
-                                    \ " " . l:install_path
-                        let l:clone = system(l:cmd)
-                        echomsg l:echo_message 'Installed:'
-                                    \ s:plugins[l:index][0]
-                    else
-                        " Plugin was already installed (if broken remove using
-                        " vivid#clean)
-                        echomsg l:echo_message 'Skipped:  '
-                                    \ s:plugins[l:index][0]
-                    endif
-                endif
-            else
-                echomsg l:echo_message 'Failed:   ' l:plugin
-            endif
-        endfor
-    else
+    if empty(a:000)
         " Install all plugins if no plugins were specified
         for l:plugin in s:plugins
-            let l:install_path = s:install_dir . '/' . l:plugin[2]
-            if !isdirectory(l:install_path)
-                let l:cmd = 'git clone ' . l:plugin[1] . ' ' . l:install_path
-                let l:clone = system(l:cmd)
-                echomsg l:echo_message 'Installed:' l:plugin[0]
-            else
-                " Plugin was already installed (if broken remove using
-                " vivid#clean)
-                echomsg l:echo_message 'Skipped:  ' l:plugin[0]
-            endif
+            call s:install(l:plugin[0])
         endfor
+    else
+        " If arguments were passed to Vivid, install those plugins
+        for l:plugin in a:000
+            call s:install(l:plugin)
+        endfor
+    endif
+    return
+endfunction
+
+function! s:install(plugin) abort
+    let l:echo_message = 'Vivid: Plugin install -'
+    let l:index = get(s:names, l:plugin, -1)
+    if l:index != -1
+        let l:install_path = s:install_dir . '/' . s:plugins[l:index][2]
+        if !isdirectory(l:install_path)
+            let l:cmd = 'git clone ' . s:plugins[l:index][1] . ' ' . l:install_path
+            let l:clone = system(l:cmd)
+            " TODO check clone message
+            echomsg l:echo_message 'Installed:' s:plugins[l:index][0]
+        else
+            " Plugin nalready installed. If broken, remove with vivid#clean
+            echomsg l:echo_message 'Skipped:  ' s:plugins[l:index][0]
+        endif
+    else
+        echomsg l:echo_message 'Failed:   ' l:plugin
     endif
     return
 endfunction
@@ -186,15 +172,15 @@ endfunction
 " Upgrade plugins (TODO async download)
 " TODO frozen plugins
 function! vivid#upgrade(...) abort
-    if a:0 != 0
-        " Upgrade specified plugins only
-        for l:plugin in a:000
-            call s:upgrade(l:plugin)
-        endfor
-    else
+    if empty(a:000)
         " Upgrade all plugins because none were specified
         for l:plugin in s:plugins
             call s:upgrade(l:plugin[0])
+        endfor
+    else
+        " Upgrade specified plugins only
+        for l:plugin in a:000
+            call s:upgrade(l:plugin)
         endfor
     endif
     return
@@ -202,25 +188,23 @@ endfunction
 
 function! s:upgrade(plugin) abort
     let l:echo_message = 'Vivid: Plugin upgrade -'
-    if has_key(s:names, a:plugin)
-        let l:index = get(s:names, a:plugin, -1)
-        if l:index != -1
-            let l:install_path = s:install_dir . '/' . 
-                        \ s:plugins[l:index][2]
-            let l:cmd = 'git -C ' . l:install_path . ' pull'
-            let l:output = system(l:cmd)
-            if l:output =~# '\m\C^Already up-to-date\.'
-                echomsg l:echo_message 'Latest:   ' s:plugins[l:index][0]
+    let l:index = get(s:names, a:plugin, -1)
+    if l:index != -1
+        let l:install_path = s:install_dir . '/' . 
+                    \ s:plugins[l:index][2]
+        let l:cmd = 'git -C ' . l:install_path . ' pull'
+        let l:output = system(l:cmd)
+        if l:output =~# '\m\C^Already up-to-date\.'
+            echomsg l:echo_message 'Latest:   ' s:plugins[l:index][0]
+        else
+            let l:output = split(l:output)
+            " TODO give more information
+            if l:output[0] =~# '\m\C^From$'
+                echomsg l:echo_message 'Upgraded: ' s:plugins[l:index][0]
+            elseif l:output[0] =~# '\m\C^fatal:$'
+                echomsg l:echo_message 'Failed:   ' s:plugins[l:index][0]
             else
-                let l:output = split(l:output)
-                " TODO give more information
-                if l:output[0] =~# '\m\C^From$'
-                    echomsg l:echo_message 'Upgraded: ' s:plugins[l:index][0]
-                elseif l:output[0] =~# '\m\C^fatal:$'
-                    echomsg l:echo_message 'Failed:   ' s:plugins[l:index][0]
-                else
-                    echomsg l:output[0]
-                endif
+                echomsg l:output[0]
             endif
         endif
     else
@@ -232,33 +216,31 @@ endfunction
 
 " Enable plugins
 function! vivid#enable(...) abort
-    if a:0 != 0
-        " Enable specified plugins only
-        for l:plugin in a:000
-            call s:enable(l:plugin)
-        endfor
-    else
+    if empty(a:000)
         " Enable all plugins because none were specified
         for l:plugin in s:plugins
             call s:enable(l:plugin[0])
+        endfor
+    else
+        " Enable specified plugins only
+        for l:plugin in a:000
+            call s:enable(l:plugin)
         endfor
     endif
     return
 endfunction
 
 function! s:enable(plugin, ...) abort
-    if has_key(s:names, a:plugin)
-        let l:index = get(s:names, a:plugin, -1)
-        if l:index != -1
-            if !isdirectory(s:install_dir . '/' . s:plugins[l:index][2])
-                call vivid#install(s:plugins[l:index][0])
-            endif
-            if s:plugins[l:index][3] == 0 || exists('a:1')
-                let s:plugins[l:index][3] = 1
-                silent execute 'packadd ' . s:plugins[l:index][2]
-                let l:doc = expand(s:install_dir . '/' . s:plugins[l:index][2] . '/doc/')
-                call s:gen_helptags(l:doc)
-            endif
+    let l:index = get(s:names, a:plugin, -1)
+    if l:index != -1
+        if !isdirectory(s:install_dir . '/' . s:plugins[l:index][2])
+            call vivid#install(s:plugins[l:index][0])
+        endif
+        if s:plugins[l:index][3] == 0 || exists('a:1')
+            let s:plugins[l:index][3] = 1
+            silent execute 'packadd ' . s:plugins[l:index][2]
+            let l:doc = expand(s:install_dir . '/' . s:plugins[l:index][2] . '/doc/')
+            call s:gen_helptags(l:doc)
         endif
     else
         echomsg 'Vivid: Plugin enable  - Failed:   ' a:plugin
