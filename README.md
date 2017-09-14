@@ -27,19 +27,21 @@
 Planned features:
 
 * Remove unused plugins
-* Async upgrade and install of plugins
+* Async update and install of plugins
 * Windows support
 * Local plugin repositories (file://)
 * Freeze plugins to a specific version or commit
-* Upgrade by tags
-* Upgrade from a chosen branch
+* Update by tags
+* Update from a chosen branch
 * Vim help doc (similar to the [Vivid wiki])
+* More verbose processes (can be toggled on or off)
+* Change the directory plugins are installed to
 
 
 ---
 
 
-![Vivid Upgrading Plugins](screenshots/vivid-upgrade.png)
+![Vivid Updating Plugins](screenshots/vivid-update.png)
 
 
 ---
@@ -79,11 +81,11 @@ To enable Vivid the line `packadd Vivid.vim` must be added to your `$MYVIMRC` be
 
 By default Vivid enables no plugins, this is because of it's heavy focus on lazy loading and control. This behaviour can be reversed by including `call vivid#enable()` or `PluginEnable!` after adding all of the plugins to Vivid.
 
-NOTE: When using Vivid, never use the ``packloadall`` or the ``packadd`` on any plugin that Vivid is managing. Using these commands will cause Vivid to break for that session. The exception is the ``packadd Vivid.vim`` before any plugin config.
+**NOTE:** When using Vivid, never use the ``packloadall`` or the ``packadd`` on any plugin that Vivid is managing. Using these commands will cause Vivid to break for that session. The exception is the ``packadd Vivid.vim`` before any plugin config.
 
 #### Adding Plugins
 
-Vivid will manage any plugins which are defined using the ``vivid#add`` function, or the `Plugin` command. Vivid provides many options when adding plugins. The commands are based off of the [Vundle] commands (where [Vivid's origins] are)
+Vivid will manage any plugins which are defined using the ``vivid#add`` function, or the `Plugin` command. Vivid provides many options when adding plugins. The commands are based off of the [Vundle] commands (where [Vivid's origins] lie)
 
 ```vim
 packadd Vivid.vim " Required
@@ -94,7 +96,7 @@ call vivid#add('https://github.com/tpope/vim-fugitive') " Using full remote addr
 call vivid#add('tpope/vim-fugitive', { 'enabled': 1, }) " Add and enable plugin by default
 call vivid#add('tpope/vim-fugitive', {          " Other options to provide to Vivid
         \ 'name': 'Fugitive',                   " Change the name to use to refer to the pluguin
-        \ 'path': 'fugitive.vim',               " Change the folder the plugin is in to avoid nameing collisions
+        \ 'path': 'fugitive.vim',               " Change the folder the plugin is in to avoid naming collisions
         \ 'enabled': 1,                         " Auto-enable plugin, can be set to 1 or 0, the default is 0
         })
 
@@ -105,23 +107,23 @@ Plugin 'https://github.com/tpope/vim-fugitive'  " Using full remote address to p
 Plugin 'tpope/vim-fugitive', { 'enabled': 1, }  " Add and enable plugin by default
 Plugin 'tpope/vim-fugitive', {                  " Other options to provide to Vivid
         \ 'name': 'Fugitive',                   " Change the name to use to refer to the pluguin
-        \ 'path': 'fugitive.vim',               " Change the folder the plugin is in to avoid nameing collisions
+        \ 'path': 'fugitive.vim',               " Change the folder the plugin is in to avoid naming collisions
         \ 'enabled': 1,                         " Auto-enable plugin, can be set to 1 or 0, the default is 0
         }
 ```
 
 #### Installing Plugins
 
-Vivid allows you to install plugins so you don't have to install them your self. The ``vivid#install()`` function can be used in two different ways. By providing no arguments to the install function, Vivid will install all Plugins which were added to Vivid. The other way is to provide arguments for the install function (plugin names) and Vivid will install only those plugins. e.g. ``call vivid#install('plugin-name-one', 'plugin-name-two')``
+Vivid allows you to install plugins so you don't have to manually install them your self. The ``vivid#install()`` function can be used in two different ways. By providing no arguments to the install function, Vivid will install all Plugins which were added to Vivid. The other way is to provide arguments for the install function (plugin names) and Vivid will install only those plugins. e.g. ``call vivid#install('plugin-name-one', 'plugin-name-two')``
 
 If a plugin is enabled which is not installed, Vivid will automatically install that plugin.
 
 Sometimes a plugin may break, sometimes due user fiddling or even broken Git history. To fix this problem use the ``vivid#clean`` function and provide it the name of the plugin. This will remove all of the plugin information. After doing this install the plugin again.
 
 
-#### Upgrading Plugins
+#### Updating Plugins
 
-* Upgrading plugins: `call vivid#upgrade()`, `PluginUpgrade`
+* Updating plugins: `call vivid#update()`, `PluginUpdate`
 
 #### Enabling Plugins
 

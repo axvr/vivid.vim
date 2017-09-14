@@ -18,7 +18,7 @@ let s:plugins = [['Vivid', 'https://git::@github.com/axvr/Vivid.vim', 'Vivid.vim
 let s:names   = { 'Vivid': 0, }
 let s:next_location = 1
 let s:install_dir = ''
-" TODO print more information to user about upgrades etc.
+" TODO print more information to user about updates etc.
 "let g:vivid#verbose = 0
 
 
@@ -123,7 +123,7 @@ function! vivid#add(remote, ...) abort
     endif
 
     if l:enabled == 1
-        call s:enable(l:name, 1)
+        call s:enable_plugins(l:name, 1)
     endif
 
     return
@@ -137,18 +137,18 @@ function! vivid#install(...) abort
     if empty(a:000)
         " Install all plugins if no plugins were specified
         for l:plugin in s:plugins
-            call s:install(l:plugin[0])
+            call s:install_plugins(l:plugin[0])
         endfor
     else
         " If arguments were passed to Vivid, install those plugins
         for l:plugin in a:000
-            call s:install(l:plugin)
+            call s:install_plugins(l:plugin)
         endfor
     endif
     return
 endfunction
 
-function! s:install(plugin) abort
+function! s:install_plugins(plugin) abort
     let l:echo_message = 'Vivid: Plugin install -'
     let l:index = get(s:names, a:plugin, -1)
     if l:index != -1
@@ -178,25 +178,25 @@ function! s:install(plugin) abort
 endfunction
 
 
-" Upgrade plugins (TODO async download)
+" Update plugins (TODO async download)
 " TODO frozen plugins
-function! vivid#upgrade(...) abort
+function! vivid#update(...) abort
     if empty(a:000)
-        " Upgrade all plugins because none were specified
+        " Update all plugins because none were specified
         for l:plugin in s:plugins
-            call s:upgrade(l:plugin[0])
+            call s:update_plugins(l:plugin[0])
         endfor
     else
-        " Upgrade specified plugins only
+        " Update specified plugins only
         for l:plugin in a:000
-            call s:upgrade(l:plugin)
+            call s:update_plugins(l:plugin)
         endfor
     endif
     return
 endfunction
 
-function! s:upgrade(plugin) abort
-    let l:echo_message = 'Vivid: Plugin upgrade -'
+function! s:update_plugins(plugin) abort
+    let l:echo_message = 'Vivid: Plugin update -'
     let l:index = get(s:names, a:plugin, -1)
     if l:index != -1
         let l:install_path = s:install_dir . '/' .
@@ -209,7 +209,7 @@ function! s:upgrade(plugin) abort
             let l:output = split(l:output)
             " TODO give more information
             if l:output[0] =~# '\m\C^From$'
-                echomsg l:echo_message 'Upgraded: ' s:plugins[l:index][0]
+                echomsg l:echo_message 'Updated: ' s:plugins[l:index][0]
             elseif l:output[0] =~# '\m\C^fatal:$'
                 echomsg l:echo_message 'Failed:   ' s:plugins[l:index][0]
             else
@@ -228,18 +228,18 @@ function! vivid#enable(...) abort
     if empty(a:000)
         " Enable all plugins because none were specified
         for l:plugin in s:plugins
-            call s:enable(l:plugin[0])
+            call s:enable_plugins(l:plugin[0])
         endfor
     else
         " Enable specified plugins only
         for l:plugin in a:000
-            call s:enable(l:plugin)
+            call s:enable_plugins(l:plugin)
         endfor
     endif
     return
 endfunction
 
-function! s:enable(plugin, ...) abort
+function! s:enable_plugins(plugin, ...) abort
     let l:index = get(s:names, a:plugin, -1)
     if l:index != -1
         if !isdirectory(s:install_dir . '/' . s:plugins[l:index][2])
