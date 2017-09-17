@@ -89,8 +89,10 @@ Most actions that Vivid can perform have two methods of use, functions and comma
 
 Vivid will manage any plugins which are defined using the ``vivid#add`` function, or the `Plugin` command. Vivid provides many options when adding plugins. The commands are based off of the [Vundle] commands (where [Vivid's origins] lie)
 
+Using the function:
+
 ```vim
-packadd Vivid.vim " Required
+packadd Vivid.vim  " Required
 
 " Examples of adding plugins to Vivid (using the function)
 call vivid#add('tpope/vim-fugitive')            " Simple adding from GitHub (same as Vundle and Vim-Plug)
@@ -101,7 +103,12 @@ call vivid#add('tpope/vim-fugitive', {          " Other options to provide to Vi
         \ 'path': 'fugitive.vim',               " Change the folder the plugin is in to avoid naming collisions
         \ 'enabled': 1,                         " Auto-enable plugin, can be set to 1 or 0, the default is 0
         })
+```
 
+Using the command:
+
+```vim
+packadd Vivid.vim  " Required
 
 " Examples of adding plugins to Vivid (using the command)
 Plugin 'tpope/vim-fugitive'                     " Simple adding from GitHub (same as Vundle and Vim-Plug)
