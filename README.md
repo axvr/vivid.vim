@@ -216,6 +216,7 @@ This is an example of a possible use case in a vimrc:
 ```vim
 augroup clang
     autocmd!
+    " Automatically enable clang specific plugins when in a clang file
     autocmd FileType c,h,cpp,hpp,cc,objc call vivid#enable('vim-clang-format', 'vim-cpp-enhanced-highlight')
 augroup END
 ```
@@ -231,9 +232,11 @@ Outputs from this function are as follows:
 * `0` : Disabled or not added for Vivid to manage
 * `1` : Enabled
 
-Example of checking in a vimrc
+Example of plugin status checking in a vimrc
 
 ```vim
+" Add Git branch to Vim statusline if vim-fugitive is on and 
+" is in a git controlled repo to avoid any errors
 function! GitBranch() abort
     if vivid#enabled('vim-fugitive') && fugitive#head() != ''
         return '  ' . fugitive#head() . ' '
