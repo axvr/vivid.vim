@@ -18,6 +18,8 @@ let s:plugins = [['Vivid', 'https://git::@github.com/axvr/Vivid.vim', 'Vivid.vim
 let s:names   = { 'Vivid': 0, }
 let s:next_location = 1
 let s:install_dir = ''
+" Allow user to check if Vivid is enabled
+let g:loaded_vivid = 1
 " TODO print more information to user about updates etc.
 "let g:vivid#verbose = 0
 
