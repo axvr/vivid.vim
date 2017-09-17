@@ -196,7 +196,7 @@ function! vivid#update(...) abort
 endfunction
 
 function! s:update_plugins(plugin) abort
-    let l:echo_message = 'Vivid: Plugin update -'
+    let l:echo_message = 'Vivid: Plugin update  -'
     let l:index = get(s:names, a:plugin, -1)
     if l:index != -1
         let l:install_path = s:install_dir . '/' .
@@ -209,7 +209,7 @@ function! s:update_plugins(plugin) abort
             let l:output = split(l:output)
             " TODO give more information
             if l:output[0] =~# '\m\C^From$'
-                echomsg l:echo_message 'Updated: ' s:plugins[l:index][0]
+                echomsg l:echo_message 'Updated:  ' s:plugins[l:index][0]
             elseif l:output[0] =~# '\m\C^fatal:$'
                 echomsg l:echo_message 'Failed:   ' s:plugins[l:index][0]
             else
