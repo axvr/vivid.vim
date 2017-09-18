@@ -233,7 +233,7 @@ augroup END
 
 Vivid allows you to write complex scripts in your ``$MYVIMRC``, one of the features it provides is checking whether a plugin is enabled or not. The simple feature opens many possibilities, such as commands are mapped when the plugin is enabled, or a different config and plugins in Neovim than in Vim when using the same configuration file.
 
-This is a much needed feature as not all plugins set the `g:loaded_plugin_name` variable
+This is a much needed feature as not all plugins set the `g:loaded_plugin_name` variable.
 
 The function is ``vivid#enabled('plugin-name-here')``, and it takes only one argument, the name of the plugin to check the status of.
 

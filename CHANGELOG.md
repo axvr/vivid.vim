@@ -51,10 +51,14 @@ Leave 3 lines between previous change log item -->
 ### Added
 * [#5] Install plugins
 * [#2] Enable plugins
-* [#3] Upgrade plugins
+* [#3] Update plugins
 * [#4] Add plugins
 * [#17] Check if plugins are enabled
 * [#19] Commands and functions to control Vivid
+* [#9] Generate help tags
+* Auto-enable plugins
+* Set relative install path
+* Change plugin name
 
 
 
@@ -70,6 +74,7 @@ Leave 3 lines between previous change log item -->
 [#3]:https://github.com/axvr/Vivid.vim/issues/3
 [#4]:https://github.com/axvr/Vivid.vim/issues/4
 [#5]:https://github.com/axvr/Vivid.vim/issues/5
+[#9]:https://github.com/axvr/Vivid.vim/issues/9
 [#17]:https://github.com/axvr/Vivid.vim/issues/17
 [#19]:https://github.com/axvr/Vivid.vim/issues/19
 
