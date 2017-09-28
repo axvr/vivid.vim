@@ -22,7 +22,7 @@
 * Enable plugins
 * Auto-enable plugins
 * Check if a plugin is enabled
-* Auto generates [help tags] for each plugins
+* Auto generate [help tags] for each plugins
 
 Planned features:
 
@@ -41,7 +41,7 @@ Planned features:
 ---
 
 
-![Vivid Updating Plugins](screenshots/vivid-update.png)
+![Vivid Updating Plugins](images/vivid-update.png)
 
 
 ---
