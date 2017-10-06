@@ -102,7 +102,7 @@ call vivid#add('tpope/vim-fugitive', {          " Other options to provide to Vi
         \ 'name': 'Fugitive',                   " Change the name to use to refer to the pluguin
         \ 'path': 'fugitive.vim',               " Change the folder the plugin is in to avoid naming collisions
         \ 'enabled': 1,                         " Auto-enable plugin, can be set to 1 or 0, the default is 0
-        })
+        \ })
 ```
 
 Using the command:
@@ -118,7 +118,7 @@ Plugin 'tpope/vim-fugitive', {                  " Other options to provide to Vi
         \ 'name': 'Fugitive',                   " Change the name to use to refer to the pluguin
         \ 'path': 'fugitive.vim',               " Change the folder the plugin is in to avoid naming collisions
         \ 'enabled': 1,                         " Auto-enable plugin, can be set to 1 or 0, the default is 0
-        }
+        \ }
 ```
 
 #### Automatic Plugin Naming
