@@ -58,9 +58,9 @@ call s:gen_helptags(expand(s:install_dir . '/' . s:plugins[0][2] . '/doc/'))
 
 " Add a plugin for Vivid to manage
 " Example:
-" call vivid#add('rhysd/clever-f.vim', {
-"     \ 'name': 'Clever-f',
-"     \ 'path': 'clever-f.vim',
+" call vivid#add('tpope/vim-fugitive', {
+"     \ 'name': 'Fugitive',
+"     \ 'path': 'fugitive.vim',
 "     \ 'enabled': 1,
 "     \ } )
 " Arguments: 'remote', { 'name': 'string', 'path': 'string', 'enabled': boolean }
