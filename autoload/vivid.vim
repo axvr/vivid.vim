@@ -5,13 +5,72 @@
 " Version:      1.0.0
 " ==============================================================================
 
+" TODO allow extensions for Vivid (e.g. add async, etc.)
+" FIXME make DOS compatible (:h dos  :h shellescape())
+" TODO check that `packadd` can take multiple args and `au`s will be ran on each
+
+" Prevent Vivid being loaded multiple times (and users can check if enabled)
+if exists('g:loaded_vivid') || !has('packages') | finish | endif
+let g:loaded_vivid = 1
+
+" New central plugin store (dictionary contains the list)
+" Dictionary: { key: list, key2: list2, key3: list3, }
+" List: TODO expand the list, add more options, etc.
+" | Remote Address                                | Enabled | Install Path? |
+" |-----------------------------------------------|---------|---------------|
+" | 'https://git::@github.com/axvr/Vivid.vim.git' | 1       | 'Vivid.vim'   |
+let s:plugins = { 'Vivid': ['https://git::@github.com/axvr/Vivid.vim.git', 1], }
+
+" Print more information to user about updates, etc.
+let g:vivid#verbose = 0
+
+" Find Vivid install location (fast if nothing has yet been added to the &rtp)
+" TODO allow for other/custom install locations
+let s:where_am_i = split(&runtimepath, ',')
+for s:path in s:where_am_i
+    if s:path =~# '.Vivid\.vim$' 
+        let s:install_location = substitute(s:path, '.Vivid\.vim', '', '')
+        unlet s:path s:where_am_i
+        break
+    endif
+endfor
+
+" Generate helptags FIXME needs optimising, adapting & improving
+function! s:gen_helptags(doc) abort
+    if isdirectory(a:doc)
+        execute 'helptags ' . a:doc
+    endif
+endfunction
+call s:gen_helptags(expand(s:install_location . '/Vivid.vim/doc/'))
+" FIXME ^ dos compatible and optimise
+
+
+" Add a plugin for Vivid to manage
+" Example:
+" call vivid#add('tpope/vim-fugitive', {
+"     \ 'name': 'Fugitive',
+"     \ 'path': 'fugitive.vim',
+"     \ 'enabled': 1,
+"     \ } )
+" Arguments: 'remote', { 'path': 'string', 'enabled': boolean }
+function! vivid#add(remote, ...) abort
+
+    if !empty(a:000)
+    endif
+
+
+endfunction
+
+
+
+
 
 " Main list for Vivid to manage all plugins
 " s:plugins = [[a, 1, 4], [b, 2, 5], [c, 3, 6],]
 "              ^brackets = rows  ^numbers = columns
 " | Name  | Remote Address                        | Install Path | Enabled |
-" |-------+---------------------------------------+--------------+---------|
-" | Vivid | https://github.com/axvr/Vivid.vim.git | Vivid        | 1       |
+" |-------|---------------------------------------|--------------|---------|
+" | Vivid | https://github.com/axvr/Vivid.vim.git | Vivid.vim    | 1       |
 let s:plugins = [['Vivid', 'https://git::@github.com/axvr/Vivid.vim', 'Vivid.vim', 1]]
 " Dictionary containing locations of plugins in the list (for quickly finding
 " a specific plugin, without requiring searching every item of the list)
@@ -25,6 +84,7 @@ let g:loaded_vivid = 1
 "let g:vivid#verbose = 0
 
 
+" TODO determine directory based upon where Vivid was when loaded?
 " Set install directory automatically
 let s:nvim_path = $HOME . '/.config/nvim/pack/vivid/opt'
 let s:vim_path  = $HOME . '/.vim/pack/vivid/opt'
@@ -63,7 +123,7 @@ call s:gen_helptags(expand(s:install_dir . '/' . s:plugins[0][2] . '/doc/'))
 "     \ 'path': 'fugitive.vim',
 "     \ 'enabled': 1,
 "     \ } )
-" Arguments: 'remote', { 'name': 'string', 'path': 'string', 'enabled': boolean }
+" Arguments: 'remote', { 'path': 'string', 'enabled': boolean }
 function! vivid#add(remote, ...) abort
 
     " Create remote path for plugin
@@ -91,22 +151,12 @@ function! vivid#add(remote, ...) abort
         let l:path = split(l:path, '/')
         let l:path = l:path[-1]
         let l:path = substitute(l:path, '\m\C\.git$', '', '')
-    endif
-
-    " Create the name from the remote address (unless one was given)
-    if a:0 == 1 && has_key(l:info, 'name')
-        let l:name = l:info['name']
-    else
-        let l:name = l:remote
-        let l:name = split(l:name, '/')
-        let l:name = l:name[-1]
-        " for some reason, split() does not work on '.'
-        let l:name = substitute(l:name, '\m\C\.', ';', '')
-        let l:name = split(l:name, ';')
-        let l:name = l:name[0]
+        " TODO temporary to avoid breakages
+        let l:name = l:path
     endif
 
     " Default the auto-enabled to false (unless explicitly stated otherwise)
+    " TODO simplify this
     if a:0 == 1 && has_key(l:info, 'enabled')
         if l:info['enabled'] == 0 || l:info['enabled'] == 1
             let l:enabled = l:info['enabled']
@@ -118,6 +168,7 @@ function! vivid#add(remote, ...) abort
     " Check that the same plugin has not already been added to Vivid
     if !has_key(s:names, l:name)
         " Add plugin to the (2D) list
+        " FIXME
         let l:plugin = [l:name, l:remote, l:path, l:enabled]
         call add(s:plugins, l:plugin)
         " Add plugin to the s:names dictionary to find the info quickly
@@ -250,7 +301,7 @@ function! s:enable_plugins(plugin, ...) abort
         endif
         if s:plugins[l:index][3] == 0 || exists('a:1')
             let s:plugins[l:index][3] = 1
-            silent execute 'packadd ' . s:plugins[l:index][2]
+            silent execute 'packadd! ' . s:plugins[l:index][2]
             let l:doc = expand(s:install_dir . '/' . s:plugins[l:index][2] . '/doc/')
             call s:gen_helptags(l:doc)
         endif
