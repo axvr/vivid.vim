@@ -7,9 +7,7 @@
 
 " TODO allow extensions for Vivid (e.g. add async, etc.)
 " FIXME make DOS compatible (:h dos  :h shellescape())
-" TODO check that `packadd` can take multiple args and `au`s will be ran on each
-" TODO use something similar to this in Vivid
-"autocmd! SourceCmd ~/.vim/pack/vivid/opt/vim-qf/*/*.vim if vivid#enabled('vim-qf') == 0 | call vivid#enable('vim-qf') | echo "hello world" | endif
+" NOTE: 'packadd' can only take one argument
 
 " Prevent Vivid being loaded multiple times (and users can check if enabled)
 if exists('g:loaded_vivid') || !has('packages') | finish | endif
@@ -46,7 +44,7 @@ call s:gen_helptags(expand(s:install_location . '/Vivid.vim/doc/'))
 " FIXME ^ dos compatible and optimise
 
 
-" Add a plugin for Vivid to manage
+" Add a plugin for Vivid to manage {{{
 " Example:
 " call vivid#add('tpope/vim-fugitive', {
 "     \ 'path': 'fugitive.vim',
@@ -58,6 +56,7 @@ function! vivid#add(remote, ...) abort
     " Create empty dictionary to be added to s:plugins
     let l:new_plugin = {}
 
+    " Check the remote addresses are valid (mostly, can't check everything)
     " TODO add more sources
     if a:remote =~? '\m\C^https:\/\/.\+' || a:remote =~? '\m\C^http:\/\/.\+'
         let l:new_plugin['remote'] = a:remote
@@ -84,61 +83,61 @@ function! vivid#add(remote, ...) abort
     " Add the new plugin to the plugin dictionary
     if !has_key(s:plugins, l:path)
         let s:plugins[l:path] = l:new_plugin
+        " TODO debate the usefulness of the below autocmd
+        execute 'autocmd! SourceCmd ' . s:install_location . '/' . l:path .
+                    \ '/*/*.vim ' . 'call vivid#enable("' . l:path . '")'
     endif
 
-    " TODO enable plugin
+    " Enable plugin (if auto-enable was selected)
     if has_key(a:000, 'enabled') && a:000['enabled'] == 0
-        " Enable plugin
-        echo "Work in progress"
+        call vivid#enable(l:path)
     endif
 
     return
+endfunction  " }}}
+
+
+" Allows the user to check if a plugin is enabled or not
+" return values:  1 == enabled, 0 == disabled or not managed by Vivid
+function! vivid#enabled(plugin_path) abort
+    if has_key(s:plugins, a:plugin_path)
+        return s:plugins[a:plugin_path]['enabled']
+    else | return 0
+    endif
 endfunction
 
 
+" FIXME ------------------------------------------------
+
+" TODO
+function s:collect_plugin_info(...) abort
+    " TODO return dictionary?
+endfunction
 
 
-" -----------------------------------------------------------------------
-
-" Main list for Vivid to manage all plugins
-" s:plugins = [[a, 1, 4], [b, 2, 5], [c, 3, 6],]
-"              ^brackets = rows  ^numbers = columns
-" | Name  | Remote Address                        | Install Path | Enabled |
-" |-------|---------------------------------------|--------------|---------|
-" | Vivid | https://github.com/axvr/Vivid.vim.git | Vivid.vim    | 1       |
-let s:plugins = [['Vivid', 'https://git::@github.com/axvr/Vivid.vim', 'Vivid.vim', 1]]
-" Dictionary containing locations of plugins in the list (for quickly finding
-" a specific plugin, without requiring searching every item of the list)
-let s:names   = { 'Vivid': 0, }
-let s:next_location = 1
-let s:install_dir = ''
-" Allow user to check if Vivid is enabled
-if exists("g:loaded_vivid") | finish | endif
-let g:loaded_vivid = 1
-" TODO print more information to user about updates etc.
-"let g:vivid#verbose = 0
-
-" --------------------------------
-
-" Install plugins
+" FIXME Install plugins
 " TODO async download
 " TODO windows compatibility
+" TODO optimise this
 function! vivid#install(...) abort
     if empty(a:000)
         " Install all plugins if no plugins were specified
-        for l:plugin in s:plugins
-            call s:install_plugins(l:plugin[0])
+        for [l:plugin_path, l:plugin_info] in items(s:plugins)
+            call s:install_plugin(l:plugin_path, l:plugin_info['remote'])
         endfor
     else
         " If arguments were passed to Vivid, install those plugins
-        for l:plugin in a:000
-            call s:install_plugins(l:plugin)
+        for l:plugin_path in a:000
+            if has_key(s:plugins, l:plugin_path)
+                call s:install_plugin(l:plugin_path, 
+                            \ s:plugins[l:plugin_path]['remote'])
+            endif
         endfor
     endif
     return
 endfunction
 
-function! s:install_plugins(plugin) abort
+function! s:install_plugin(plugin_path, plugin_remote) abort
     let l:echo_message = 'Vivid: Plugin install -'
     let l:index = get(s:names, a:plugin, -1)
     if l:index != -1
@@ -167,6 +166,10 @@ function! s:install_plugins(plugin) abort
     return
 endfunction
 
+
+
+"let s:plugins = [['Vivid', 'https://git::@github.com/axvr/Vivid.vim', 'Vivid.vim', 1]]
+"let s:names   = { 'Vivid': 0, }
 
 " Update plugins (TODO async download)
 " TODO frozen plugins
@@ -248,20 +251,9 @@ function! s:enable_plugins(plugin, ...) abort
 endfunction
 
 
-" TODO
+" TODO Remove plugin code   
 "function! vivid#clean(...) abort
 "endfunction
-
-
-" Allows the user to check if a plugin is enabled or not
-" return values:  1 == enabled, 0 == disabled or not a plugin
-function! vivid#enabled(plugin) abort
-    let l:index = get(s:names, a:plugin, -1)
-    if l:index != -1
-        return s:plugins[l:index][3]
-    else | return 0
-    endif
-endfunction
 
 
 " vim: set ts=4 sw=4 tw=80 et ft=vim fdm=marker fmr={{{,}}} :
