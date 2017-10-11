@@ -10,6 +10,7 @@
 " NOTE: 'packadd' can only take one argument
 " TODO provide an option for manipulating 'packadd'
 " TODO provide compatiblilty with systems without the package feature
+" TODO plugins using submodules
 " TODO allow full install paths to be specified
 
 " Prevent Vivid being loaded multiple times (and users can check if enabled)
@@ -18,8 +19,8 @@ let g:loaded_vivid = 1
 
 " New central plugin store (dictionary contains a sub-dictionary)
 " TODO add more options
-let s:plugins = { 'Vivid': { 
-            \ 'remote': 'https://git::@github.com/axvr/Vivid.vim.git', 
+let s:plugins = { 'Vivid': {
+            \ 'remote': 'https://git::@github.com/axvr/Vivid.vim.git',
             \ 'enabled': 1,
             \ }, }
 
@@ -31,7 +32,7 @@ endif
 " Find Vivid install location (fast if nothing has been added to the 'rtp' yet)
 let s:where_am_i = split(&runtimepath, ',')
 for s:path in s:where_am_i
-    if s:path =~# '.Vivid\.vim$' 
+    if s:path =~# '.Vivid\.vim$'
         let s:install_location = substitute(s:path, '.Vivid\.vim', '', '')
         unlet s:path s:where_am_i
         break
@@ -100,7 +101,6 @@ function! vivid#add(remote, ...) abort
     return
 endfunction  " }}}
 
-
 " Allows the user to check if a plugin is enabled or not
 " return values:  1 == enabled, 0 == disabled or not managed by Vivid
 function! vivid#enabled(plugin_path) abort
@@ -110,8 +110,7 @@ function! vivid#enabled(plugin_path) abort
     endif
 endfunction
 
-
-" var = s:pick_a_dictionary(a:000)
+" Usage: let l:var = s:pick_a_dictionary(a:000)
 function! s:pick_a_dictionary(...) abort
     if empty(a:000)
         return 's:plugins'
@@ -126,20 +125,46 @@ function! s:pick_a_dictionary(...) abort
     endif
 endfunction
 
-
-" TODO Install plugins
+" Install plugins
 function! vivid#install(...) abort
     let l:dict = s:pick_a_dict(a:000)
     for [l:key, l:value] in items({l:dict})
-        " Do things
+        let l:echo_message = 'Vivid: Plugin install -'
+        let l:install_path = expand(s:install_location . '/' . l:key)
+        if !isdirectory(l:install_path)
+            let l:cmd = 'git clone ' . l:value['remote'] . ' ' . l:install_path
+            let l:output = system(l:cmd)
+            if l:output =~# '\m\C^Cloning into '  " TODO check clone message
+                echomsg l:echo_message 'Installed:' l:key
+            else
+                echomsg l:echo_message 'Failed:   ' l:key
+            endif
+        else
+            " Plugin already installed. If broken, remove with vivid#clean
+            echomsg l:echo_message     'Skipped:  ' l:key
+        endif
     endfor
 endfunction
 
-" TODO Update plugins
+" Update plugins
 function! vivid#update(...) abort
     let l:dict = s:pick_a_dict(a:000)
-    for [l:key, l:value] in items({l:dict})
-        " Do things
+    for l:key in keys({l:dict})
+        let l:echo_message = 'Vivid: Plugin update  -'
+        let l:plugin_location = expand(s:install_location . '/' . l:key)
+        let l:cmd = 'git -C ' . l:plugin_location . ' pull'
+        let l:output = system(l:cmd)
+
+        if l:output =~# '\m\CAlready up-to-date\.'
+            echomsg l:echo_message     'Latest:   ' l:key
+        else
+            let l:output = split(l:output)
+            if l:output[0] =~# '\m\C^From$'
+                echomsg l:echo_message 'Updated:  ' l:key
+            else
+                echomsg l:echo_message 'Failed:   ' l:key
+            endif
+        endif
     endfor
 endfunction
 
@@ -149,7 +174,7 @@ function! vivid#enable(...) abort
     for l:key in keys({l:dict})
         if {l:dict}[l:key]['enabled'] == 0
             if !isdirectory(s:install_location . '/' . l:key)
-                call vivid#install()  " TODO
+                call vivid#install(l:key)
             endif
             let s:plugins[l:key]['enabled'] = 1
             silent execute 'packadd! ' . l:key
@@ -165,65 +190,6 @@ function! vivid#clean(...) abort
     for [l:key, l:value] in items({l:dict})
         " Do things
     endfor
-endfunction
-
-" FIXME below ------------------------------------------------------
-
-function! s:install_plugin(plugin_path, plugin_remote) abort
-    let l:echo_message = 'Vivid: Plugin install -'
-    let l:index = get(s:names, a:plugin, -1)
-    if l:index != -1
-        let l:install_path = s:install_dir . '/' . s:plugins[l:index][2]
-        if !isdirectory(l:install_path)
-            let l:cmd = 'git clone ' . s:plugins[l:index][1] . ' ' . l:install_path
-            let l:output = system(l:cmd)
-            " TODO check clone message
-            " TODO verbose mode
-            if l:output =~# '\m\C^fatal: repository '
-                " 'Repository does not exist'
-                echomsg l:echo_message 'Failed:   ' a:plugin
-            elseif l:output =~# '\m\C^Cloning into '
-                echomsg l:echo_message 'Installed:' s:plugins[l:index][0]
-            else
-                echomsg l:echo_message 'Failed:   ' a:plugin
-            endif
-        else
-            " Plugin already installed. If broken, remove with vivid#clean
-            echomsg l:echo_message 'Skipped:  ' s:plugins[l:index][0]
-        endif
-    else
-        " Plugin is not being managed
-        echomsg l:echo_message 'Failed:   ' a:plugin
-    endif
-    return
-endfunction
-
-
-function! s:update_plugins(plugin) abort
-    let l:echo_message = 'Vivid: Plugin update  -'
-    let l:index = get(s:names, a:plugin, -1)
-    if l:index != -1
-        let l:install_path = s:install_dir . '/' .
-                    \ s:plugins[l:index][2]
-        let l:cmd = 'git -C ' . l:install_path . ' pull'
-        let l:output = system(l:cmd)
-        if l:output =~# '\m\C^Already up-to-date\.'
-            echomsg l:echo_message 'Latest:   ' s:plugins[l:index][0]
-        else
-            let l:output = split(l:output)
-            " TODO give more information
-            if l:output[0] =~# '\m\C^From$'
-                echomsg l:echo_message 'Updated:  ' s:plugins[l:index][0]
-            elseif l:output[0] =~# '\m\C^fatal:$'
-                echomsg l:echo_message 'Failed:   ' s:plugins[l:index][0]
-            else
-                echomsg l:output[0]
-            endif
-        endif
-    else
-        echomsg l:echo_message 'Failed:   ' a:plugin
-    endif
-    return
 endfunction
 
 
