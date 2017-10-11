@@ -118,7 +118,7 @@ function! s:pick_a_dictionary(...) abort
     else
         let s:manipulate = {}
         for l:item in a:000
-            if has_key(s:plugins, l:item)
+            if has_key(s:plugins, l:item) && !has_key(s:manipulate, l:item)
                 let s:manipulate[l:item] = s:plugins[l:item]
             endif
         endfor
@@ -143,11 +143,19 @@ function! vivid#update(...) abort
     endfor
 endfunction
 
-" TODO Enable plugins
+" Enable plugins
 function! vivid#enable(...) abort
     let l:dict = s:pick_a_dict(a:000)
-    for [l:key, l:value] in items({l:dict})
-        " Do things
+    for l:key in keys({l:dict})
+        if {l:dict}[l:key]['enabled'] == 0
+            if !isdirectory(s:install_location . '/' . l:key)
+                call vivid#install()  " TODO
+            endif
+            let s:plugins[l:key]['enabled'] = 1
+            silent execute 'packadd! ' . l:key
+            let l:doc = expand(s:install_location . '/' . l:key . '/doc/')
+            call s:gen_helptags(l:doc)
+        endif
     endfor
 endfunction
 
@@ -214,25 +222,6 @@ function! s:update_plugins(plugin) abort
         endif
     else
         echomsg l:echo_message 'Failed:   ' a:plugin
-    endif
-    return
-endfunction
-
-
-function! s:enable_plugins(plugin, ...) abort
-    let l:index = get(s:names, a:plugin, -1)
-    if l:index != -1
-        if !isdirectory(s:install_dir . '/' . s:plugins[l:index][2])
-            call vivid#install(s:plugins[l:index][0])
-        endif
-        if s:plugins[l:index][3] == 0 || exists('a:1')
-            let s:plugins[l:index][3] = 1
-            silent execute 'packadd! ' . s:plugins[l:index][2]
-            let l:doc = expand(s:install_dir . '/' . s:plugins[l:index][2] . '/doc/')
-            call s:gen_helptags(l:doc)
-        endif
-    else
-        echomsg 'Vivid: Plugin enable  - Failed:   ' a:plugin
     endif
     return
 endfunction
