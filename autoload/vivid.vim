@@ -72,29 +72,38 @@ function! vivid#add(remote, ...) abort
         return
     endif
 
+    " Validate arguments given
+    if !empty(a:000) && type(a:1) == v:t_dict
+        let l:validate = 1
+    else | let l:validate = 0
+    endif
+
+
     " Generate the required local path if none were given
-    if !has_key(a:000, 'path')
+    if l:validate == 1 && !has_key(a:1, 'path')
         let l:path = split(l:new_plugin['remote'], '/')
         let l:path = substitute(l:path[-1], '\m\C\.git$', '', '')
-    else
-        let l:path = a:000['path']
+    elseif l:validate == 1
+        let l:path = a:1['path']
     endif
 
     " Merge the given dictionary to the calculated dictionary
-    call extend(l:new_plugin, a:000)
+    if l:validate == 1
+        call extend(l:new_plugin, a:1)
+    endif
     " Ensure 'enabled' is set to 0 so it can be enabled with low complexity
-    let l:new_plugin['enabled': 0]
+    let l:new_plugin['enabled'] = 0
 
     " Add the new plugin to the plugin dictionary
-    if !has_key(s:plugins, l:path)
+    if l:validate == 1 && !has_key(s:plugins, l:path)
         let s:plugins[l:path] = l:new_plugin
         " TODO debate the usefulness of the below autocmd
-        execute 'autocmd! SourceCmd ' . s:install_location . '/' . l:path .
+        "execute 'autocmd! SourceCmd ' . s:install_location . '/' . l:path .
                     \ '/*/*.vim ' . 'call vivid#enable("' . l:path . '")'
     endif
 
     " Enable plugin (if auto-enable was selected)
-    if has_key(a:000, 'enabled') && a:000['enabled'] == 0
+    if l:validate == 1 && has_key(a:1, 'enabled') && a:1['enabled'] == 0
         call vivid#enable(l:path)
     endif
 
@@ -116,7 +125,7 @@ function! s:pick_a_dictionary(...) abort
         return 's:plugins'
     else
         let s:manipulate = {}
-        for l:item in a:000
+        for l:item in a:1  " TODO validate a:1
             if has_key(s:plugins, l:item) && !has_key(s:manipulate, l:item)
                 let s:manipulate[l:item] = s:plugins[l:item]
             endif
@@ -127,7 +136,7 @@ endfunction
 
 " Install plugins
 function! vivid#install(...) abort
-    let l:dict = s:pick_a_dict(a:000)
+    let l:dict = s:pick_a_dictionary(a:000)
     for [l:key, l:value] in items({l:dict})
         let l:echo_message = 'Vivid: Plugin install -'
         let l:install_path = expand(s:install_location . '/' . l:key)
@@ -140,7 +149,6 @@ function! vivid#install(...) abort
                 echomsg l:echo_message 'Failed:   ' l:key
             endif
         else
-            " Plugin already installed. If broken, remove with vivid#clean
             echomsg l:echo_message     'Skipped:  ' l:key
         endif
     endfor
@@ -148,7 +156,7 @@ endfunction
 
 " Update plugins
 function! vivid#update(...) abort
-    let l:dict = s:pick_a_dict(a:000)
+    let l:dict = s:pick_a_dictionary(a:000)
     for l:key in keys({l:dict})
         let l:echo_message = 'Vivid: Plugin update  -'
         let l:plugin_location = expand(s:install_location . '/' . l:key)
@@ -170,8 +178,9 @@ endfunction
 
 " Enable plugins
 function! vivid#enable(...) abort
-    let l:dict = s:pick_a_dict(a:000)
-    for l:key in keys({l:dict})
+    let l:dict = s:pick_a_dictionary(a:000)
+    for l:key in keys({l:dict}) " <-- FIXME
+        echom "2:" l:key
         if {l:dict}[l:key]['enabled'] == 0
             if !isdirectory(s:install_location . '/' . l:key)
                 call vivid#install(l:key)
@@ -186,7 +195,7 @@ endfunction
 
 " TODO Clean unused plugins
 function! vivid#clean(...) abort
-    let l:dict = s:pick_a_dict(a:000)
+    let l:dict = s:pick_a_dictionary(a:000)
     for [l:key, l:value] in items({l:dict})
         " Do things
     endfor
