@@ -8,9 +8,12 @@
 " TODO allow extensions for Vivid (e.g. add async, etc.)
 " FIXME make DOS compatible (:h dos  :h shellescape())
 " NOTE: 'packadd' can only take one argument
+" TODO provide an option for manipulating 'packadd'
+" TODO provide compatiblilty with systems without the package feature
+" TODO allow full install paths to be specified
 
 " Prevent Vivid being loaded multiple times (and users can check if enabled)
-if exists('g:loaded_vivid') || !has('packages') | finish | endif
+if exists('g:loaded_vivid') || !has('packages') || &cp | finish | endif
 let g:loaded_vivid = 1
 
 " New central plugin store (dictionary contains a sub-dictionary)
@@ -20,11 +23,12 @@ let s:plugins = { 'Vivid': {
             \ 'enabled': 1,
             \ }, }
 
-" Print more information to user about updates, etc.
-let g:vivid#verbose = 0
+" Print more information to the user about updates, etc.
+if !exists('g:vivid#verbose')
+    let g:vivid#verbose = 0
+endif
 
-" Find Vivid install location (fast if nothing has yet been added to the &rtp)
-" TODO allow for other/custom install locations
+" Find Vivid install location (fast if nothing has been added to the 'rtp' yet)
 let s:where_am_i = split(&runtimepath, ',')
 for s:path in s:where_am_i
     if s:path =~# '.Vivid\.vim$' 
@@ -107,35 +111,55 @@ function! vivid#enabled(plugin_path) abort
 endfunction
 
 
-" FIXME ------------------------------------------------
-
-" TODO
-function s:collect_plugin_info(...) abort
-    " TODO return dictionary?
-endfunction
-
-
-" FIXME Install plugins
-" TODO async download
-" TODO windows compatibility
-" TODO optimise this
-function! vivid#install(...) abort
+" var = s:pick_a_dictionary(a:000)
+function! s:pick_a_dictionary(...) abort
     if empty(a:000)
-        " Install all plugins if no plugins were specified
-        for [l:plugin_path, l:plugin_info] in items(s:plugins)
-            call s:install_plugin(l:plugin_path, l:plugin_info['remote'])
-        endfor
+        return 's:plugins'
     else
-        " If arguments were passed to Vivid, install those plugins
-        for l:plugin_path in a:000
-            if has_key(s:plugins, l:plugin_path)
-                call s:install_plugin(l:plugin_path, 
-                            \ s:plugins[l:plugin_path]['remote'])
+        let s:manipulate = {}
+        for l:item in a:000
+            if has_key(s:plugins, l:item)
+                let s:manipulate[l:item] = s:plugins[l:item]
             endif
         endfor
+        return 's:manipulate'
     endif
-    return
 endfunction
+
+
+" TODO Install plugins
+function! vivid#install(...) abort
+    let l:dict = s:pick_a_dict(a:000)
+    for [l:key, l:value] in items({l:dict})
+        " Do things
+    endfor
+endfunction
+
+" TODO Update plugins
+function! vivid#update(...) abort
+    let l:dict = s:pick_a_dict(a:000)
+    for [l:key, l:value] in items({l:dict})
+        " Do things
+    endfor
+endfunction
+
+" TODO Enable plugins
+function! vivid#enable(...) abort
+    let l:dict = s:pick_a_dict(a:000)
+    for [l:key, l:value] in items({l:dict})
+        " Do things
+    endfor
+endfunction
+
+" TODO Clean unused plugins
+function! vivid#clean(...) abort
+    let l:dict = s:pick_a_dict(a:000)
+    for [l:key, l:value] in items({l:dict})
+        " Do things
+    endfor
+endfunction
+
+" FIXME below ------------------------------------------------------
 
 function! s:install_plugin(plugin_path, plugin_remote) abort
     let l:echo_message = 'Vivid: Plugin install -'
@@ -167,27 +191,6 @@ function! s:install_plugin(plugin_path, plugin_remote) abort
 endfunction
 
 
-
-"let s:plugins = [['Vivid', 'https://git::@github.com/axvr/Vivid.vim', 'Vivid.vim', 1]]
-"let s:names   = { 'Vivid': 0, }
-
-" Update plugins (TODO async download)
-" TODO frozen plugins
-function! vivid#update(...) abort
-    if empty(a:000)
-        " Update all plugins because none were specified
-        for l:plugin in s:plugins
-            call s:update_plugins(l:plugin[0])
-        endfor
-    else
-        " Update specified plugins only
-        for l:plugin in a:000
-            call s:update_plugins(l:plugin)
-        endfor
-    endif
-    return
-endfunction
-
 function! s:update_plugins(plugin) abort
     let l:echo_message = 'Vivid: Plugin update  -'
     let l:index = get(s:names, a:plugin, -1)
@@ -216,22 +219,6 @@ function! s:update_plugins(plugin) abort
 endfunction
 
 
-" Enable plugins
-function! vivid#enable(...) abort
-    if empty(a:000)
-        " Enable all plugins because none were specified
-        for l:plugin in s:plugins
-            call s:enable_plugins(l:plugin[0])
-        endfor
-    else
-        " Enable specified plugins only
-        for l:plugin in a:000
-            call s:enable_plugins(l:plugin)
-        endfor
-    endif
-    return
-endfunction
-
 function! s:enable_plugins(plugin, ...) abort
     let l:index = get(s:names, a:plugin, -1)
     if l:index != -1
@@ -249,11 +236,6 @@ function! s:enable_plugins(plugin, ...) abort
     endif
     return
 endfunction
-
-
-" TODO Remove plugin code   
-"function! vivid#clean(...) abort
-"endfunction
 
 
 " vim: set ts=4 sw=4 tw=80 et ft=vim fdm=marker fmr={{{,}}} :
