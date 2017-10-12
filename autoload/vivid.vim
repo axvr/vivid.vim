@@ -5,10 +5,8 @@
 " Version:      1.0.0
 " ==============================================================================
 
-" TODO allow extensions for Vivid (e.g. add async, etc.)
-" FIXME make DOS compatible (:h dos  :h shellescape())
-" TODO provide compatiblilty with systems without the package feature
-" TODO plugins using submodules support
+" FIXME make DOS compatible (see:  :h dos  :h shellescape())
+" TODO add support for plugins which use git submodules
 " TODO allow full install paths to be specified
 
 " Prevent Vivid being loaded multiple times (and users can check if enabled)
@@ -16,13 +14,12 @@ if exists('g:loaded_vivid') || !has('packages') || &cp | finish | endif
 let g:loaded_vivid = 1
 
 " New central plugin store (dictionary contains a sub-dictionary)
-" TODO add more options
 let s:plugins = { 'Vivid.vim': {
             \ 'remote': 'https://git::@github.com/axvr/Vivid.vim.git',
             \ 'enabled': 1,
             \ }, }
 
-" Print more information to the user about updates, etc.
+" TODO Print more information to the user about updates, etc.
 if !exists('g:vivid#verbose')   | let g:vivid#verbose = 0   | endif
 
 " Find Vivid install location (fast if nothing has been added to the 'rtp' yet)
@@ -47,7 +44,6 @@ function! s:gen_helptags(doc) abort
     endif
 endfunction
 call s:gen_helptags(expand(s:install_location . '/Vivid.vim/doc/'))
-" FIXME ^ dos compatible and optimise
 
 " Add a plugin for Vivid to manage {{{
 " Example:
