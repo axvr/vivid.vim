@@ -5,18 +5,15 @@
 " Readme:       https://github.com/axvr/Vivid.vim/blob/master/README.md
 " ==============================================================================
 
-" TODO add completion for PluginInstall, PluginEnable & PluginUpdate
-" TODO PluginClean
-
 command! -nargs=+ -bar Plugin call vivid#add(<args>)
 
-command! -nargs=* -bar -bang PluginInstall
+command! -nargs=* -bar -bang -complete=customlist,vivid#complete PluginInstall
             \ call s:install_validate('!' == '<bang>', <f-args>)
 
-command! -nargs=* -bar -bang PluginEnable
+command! -nargs=* -bar -bang -complete=customlist,vivid#complete PluginEnable
             \ call s:enable_validate('!' == '<bang>', <f-args>)
 
-command! -nargs=* -bar -bang PluginUpdate
+command! -nargs=* -bar -bang -complete=customlist,vivid#complete PluginUpdate
             \ call s:update_validate('!' == '<bang>', <f-args>)
 
 function! s:install_validate(bang, ...) abort

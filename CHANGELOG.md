@@ -58,7 +58,7 @@ Leave 3 lines between previous change log item -->
 * [#9] Generate help tags
 * Auto-enable plugins
 * Set relative install path
-* Change plugin name
+* Plugin completion for commands
 
 
 

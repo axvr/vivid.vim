@@ -7,10 +7,8 @@
 
 " TODO allow extensions for Vivid (e.g. add async, etc.)
 " FIXME make DOS compatible (:h dos  :h shellescape())
-" NOTE: 'packadd' can only take one argument
-" TODO provide an option for manipulating 'packadd'
 " TODO provide compatiblilty with systems without the package feature
-" TODO plugins using submodules
+" TODO plugins using submodules support
 " TODO allow full install paths to be specified
 
 " Prevent Vivid being loaded multiple times (and users can check if enabled)
@@ -19,15 +17,16 @@ let g:loaded_vivid = 1
 
 " New central plugin store (dictionary contains a sub-dictionary)
 " TODO add more options
-let s:plugins = { 'Vivid': {
+let s:plugins = { 'Vivid.vim': {
             \ 'remote': 'https://git::@github.com/axvr/Vivid.vim.git',
             \ 'enabled': 1,
             \ }, }
 
 " Print more information to the user about updates, etc.
-if !exists('g:vivid#verbose')
-    let g:vivid#verbose = 0
-endif
+if !exists('g:vivid#verbose')   | let g:vivid#verbose = 0   | endif
+
+" Vim package full integration
+if !exists('g:vivid#integrate') | let g:vivid#integrate = 0 | endif
 
 " Find Vivid install location (fast if nothing has been added to the 'rtp' yet)
 let s:where_am_i = split(&runtimepath, ',')
@@ -39,6 +38,11 @@ for s:path in s:where_am_i
     endif
 endfor
 
+" Completion for Vivid commands  TODO significantly improve this
+function! vivid#complete(A,L,P)
+    return sort(keys(s:plugins))
+endfunction
+
 " Generate helptags FIXME needs optimising, adapting & improving
 function! s:gen_helptags(doc) abort
     if isdirectory(a:doc)
@@ -47,7 +51,6 @@ function! s:gen_helptags(doc) abort
 endfunction
 call s:gen_helptags(expand(s:install_location . '/Vivid.vim/doc/'))
 " FIXME ^ dos compatible and optimise
-
 
 " Add a plugin for Vivid to manage {{{
 " Example:
@@ -80,11 +83,11 @@ function! vivid#add(remote, ...) abort
 
 
     " Generate the required local path if none were given
-    if l:validate == 1 && !has_key(a:1, 'path')
+    if l:validate == 1 && has_key(a:1, 'path')
+        let l:path = a:1['path']
+    else
         let l:path = split(l:new_plugin['remote'], '/')
         let l:path = substitute(l:path[-1], '\m\C\.git$', '', '')
-    elseif l:validate == 1
-        let l:path = a:1['path']
     endif
 
     " Merge the given dictionary to the calculated dictionary
@@ -95,15 +98,16 @@ function! vivid#add(remote, ...) abort
     let l:new_plugin['enabled'] = 0
 
     " Add the new plugin to the plugin dictionary
-    if l:validate == 1 && !has_key(s:plugins, l:path)
+    if !has_key(s:plugins, l:path)
         let s:plugins[l:path] = l:new_plugin
-        " TODO debate the usefulness of the below autocmd
-        "execute 'autocmd! SourceCmd ' . s:install_location . '/' . l:path .
-                    \ '/*/*.vim ' . 'call vivid#enable("' . l:path . '")'
+        if g:vivid#integrate == 1
+            execute 'autocmd! SourceCmd ' . s:install_location . '/' . l:path .
+                        \ '/*/*.vim ' . 'call vivid#enable("' . l:path . '")'
+        endif
     endif
 
     " Enable plugin (if auto-enable was selected)
-    if l:validate == 1 && has_key(a:1, 'enabled') && a:1['enabled'] == 0
+    if l:validate == 1 && has_key(a:1, 'enabled') && a:1['enabled'] == 1
         call vivid#enable(l:path)
     endif
 
@@ -121,7 +125,7 @@ endfunction
 
 " Usage: let l:var = s:pick_a_dictionary(a:000)
 function! s:pick_a_dictionary(...) abort
-    if empty(a:000)
+    if empty(a:000) || a:000 == [[]]
         return 's:plugins'
     else
         let s:manipulate = {}
@@ -179,27 +183,27 @@ endfunction
 " Enable plugins
 function! vivid#enable(...) abort
     let l:dict = s:pick_a_dictionary(a:000)
-    for l:key in keys({l:dict}) " <-- FIXME
-        echom "2:" l:key
+    for l:key in keys({l:dict})
         if {l:dict}[l:key]['enabled'] == 0
             if !isdirectory(s:install_location . '/' . l:key)
                 call vivid#install(l:key)
             endif
             let s:plugins[l:key]['enabled'] = 1
-            silent execute 'packadd! ' . l:key
+            silent execute 'packadd ' . l:key
             let l:doc = expand(s:install_location . '/' . l:key . '/doc/')
             call s:gen_helptags(l:doc)
         endif
     endfor
+    return
 endfunction
 
 " TODO Clean unused plugins
-function! vivid#clean(...) abort
-    let l:dict = s:pick_a_dictionary(a:000)
-    for [l:key, l:value] in items({l:dict})
-        " Do things
-    endfor
-endfunction
+"function! vivid#clean(...) abort
+"    let l:dict = s:pick_a_dictionary(a:000)
+"    for [l:key, l:value] in items({l:dict})
+"        " Do things
+"    endfor
+"endfunction
 
 
 " vim: set ts=4 sw=4 tw=80 et ft=vim fdm=marker fmr={{{,}}} :
