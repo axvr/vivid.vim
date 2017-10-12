@@ -115,9 +115,9 @@ endfunction
 function! s:pick_a_dictionary(...) abort
     if empty(a:000) || a:000 == [[]]
         return 's:plugins'
-    else
+    elseif !empty(a:000) && type(a:1) == v:t_list
         let s:manipulate = {}
-        for l:item in a:1  " TODO validate a:1
+        for l:item in a:1
             if has_key(s:plugins, l:item) && !has_key(s:manipulate, l:item)
                 let s:manipulate[l:item] = s:plugins[l:item]
             endif
