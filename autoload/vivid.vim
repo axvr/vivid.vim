@@ -25,9 +25,6 @@ let s:plugins = { 'Vivid.vim': {
 " Print more information to the user about updates, etc.
 if !exists('g:vivid#verbose')   | let g:vivid#verbose = 0   | endif
 
-" Vim package full integration
-if !exists('g:vivid#integrate') | let g:vivid#integrate = 0 | endif
-
 " Find Vivid install location (fast if nothing has been added to the 'rtp' yet)
 let s:where_am_i = split(&runtimepath, ',')
 for s:path in s:where_am_i
@@ -100,10 +97,6 @@ function! vivid#add(remote, ...) abort
     " Add the new plugin to the plugin dictionary
     if !has_key(s:plugins, l:path)
         let s:plugins[l:path] = l:new_plugin
-        if g:vivid#integrate == 1
-            execute 'autocmd! SourceCmd ' . s:install_location . '/' . l:path .
-                        \ '/*/*.vim ' . 'call vivid#enable("' . l:path . '")'
-        endif
     endif
 
     " Enable plugin (if auto-enable was selected)
