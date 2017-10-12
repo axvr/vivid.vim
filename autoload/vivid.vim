@@ -5,276 +5,193 @@
 " Version:      1.0.0
 " ==============================================================================
 
+" FIXME make DOS compatible (see:  :h dos  :h shellescape())
+" TODO add support for plugins which use git submodules
+" TODO allow full install paths to be specified
 
-" Main list for Vivid to manage all plugins
-" s:plugins = [[a, 1, 4], [b, 2, 5], [c, 3, 6],]
-"              ^brackets = rows  ^numbers = columns
-" | Name  | Remote Address                        | Install Path | Enabled |
-" |-------+---------------------------------------+--------------+---------|
-" | Vivid | https://github.com/axvr/Vivid.vim.git | Vivid        | 1       |
-let s:plugins = [['Vivid', 'https://git::@github.com/axvr/Vivid.vim', 'Vivid.vim', 1]]
-" Dictionary containing locations of plugins in the list (for quickly finding
-" a specific plugin, without requiring searching every item of the list)
-let s:names   = { 'Vivid': 0, }
-let s:next_location = 1
-let s:install_dir = ''
-" Allow user to check if Vivid is enabled
-if exists("g:loaded_vivid") | finish | endif
+" Prevent Vivid being loaded multiple times (and users can check if enabled)
+if exists('g:loaded_vivid') || !has('packages') || &cp | finish | endif
 let g:loaded_vivid = 1
-" TODO print more information to user about updates etc.
-"let g:vivid#verbose = 0
 
+" New central plugin store (dictionary contains a sub-dictionary)
+let s:plugins = { 'Vivid.vim': {
+            \ 'remote': 'https://git::@github.com/axvr/Vivid.vim.git',
+            \ 'enabled': 1,
+            \ }, }
 
-" Set install directory automatically
-let s:nvim_path = $HOME . '/.config/nvim/pack/vivid/opt'
-let s:vim_path  = $HOME . '/.vim/pack/vivid/opt'
-" TODO add more options for different types of vim (e.g. macvim)
-if has('nvim')
-    if !isdirectory(s:nvim_path)
-        call mkdir(s:nvim_path, 'p')
+" TODO Print more information to the user about updates, etc.
+if !exists('g:vivid#verbose')   | let g:vivid#verbose = 0   | endif
+
+" Find Vivid install location (fast if nothing has been added to the 'rtp' yet)
+let s:where_am_i = split(&runtimepath, ',')
+for s:path in s:where_am_i
+    if s:path =~# '.Vivid\.vim$'
+        let s:install_location = substitute(s:path, '.Vivid\.vim', '', '')
+        unlet s:path s:where_am_i
+        break
     endif
-    let s:install_dir = s:nvim_path
-else
-    if !isdirectory(s:vim_path)
-        call mkdir(s:vim_path, 'p')
-    endif
-    let s:install_dir = s:vim_path
-endif
+endfor
 
-" Generate helptags
+" Completion for Vivid commands  TODO significantly improve this
+function! vivid#complete(A,L,P)
+    return sort(keys(s:plugins))
+endfunction
+
+" Generate helptags FIXME needs optimising, adapting & improving
 function! s:gen_helptags(doc) abort
     if isdirectory(a:doc)
         execute 'helptags ' . a:doc
     endif
 endfunction
-call s:gen_helptags(expand(s:install_dir . '/' . s:plugins[0][2] . '/doc/'))
+call s:gen_helptags(expand(s:install_location . '/Vivid.vim/doc/'))
 
-" TODO Allow manual setting of plugin directory by the user, use symbolic links
-"function! vivid#set_install_dir(path) abort
-"    let s:install_dir = expand(a:path)
-"    call s:gen_helptags(expand(s:install_dir . '/' . s:plugins[0][2] . '/doc/'))
-"endfunction
-
-
-" Add a plugin for Vivid to manage
+" Add a plugin for Vivid to manage {{{
 " Example:
 " call vivid#add('tpope/vim-fugitive', {
-"     \ 'name': 'Fugitive',
-"     \ 'path': 'fugitive.vim',
+"     \ 'name': 'fugitive.vim',
 "     \ 'enabled': 1,
 "     \ } )
-" Arguments: 'remote', { 'name': 'string', 'path': 'string', 'enabled': boolean }
+" Arguments: 'remote', { 'path': 'string', 'enabled': boolean }
 function! vivid#add(remote, ...) abort
 
-    " Create remote path for plugin
-    " TODO add functionality for other sources and methods
-    " TODO windows shellescape()
+    " Create empty dictionary to be added to s:plugins
+    let l:new_plugin = {}
+
+    " Check the remote addresses are valid (mostly, can't check everything)
+    " TODO add more sources
     if a:remote =~? '\m\C^https:\/\/.\+' || a:remote =~? '\m\C^http:\/\/.\+'
-        let l:remote = a:remote
+        let l:new_plugin['remote'] = a:remote
     elseif a:remote =~? '\m\C^.\+\/.\+'
-        let l:remote = 'https://git::@github.com/' . a:remote . '.git'
+        let l:new_plugin['remote'] = 'https://git::@github.com/' . a:remote . '.git'
     else
         echomsg 'Vivid: Remote address creation fail:' a:remote
         return
     endif
 
-    " If extra info is given create a new dictionary for it
-    if a:0 == 1
-        let l:info = a:1
+    " Validate arguments given
+    if !empty(a:000) && type(a:1) == v:t_dict
+        let l:validate = 1
+    else | let l:validate = 0
     endif
 
-    " Create the path from the remote address (unless one was given)
-    if a:0 == 1 && has_key(l:info, 'path')
-        let l:path = l:info['path']
+    " Generate the required local path if none were given
+    if l:validate == 1 && has_key(a:1, 'name')
+        let l:name = a:1['name']
     else
-        let l:path = l:remote
-        let l:path = split(l:path, '/')
-        let l:path = l:path[-1]
-        let l:path = substitute(l:path, '\m\C\.git$', '', '')
+        let l:name = split(l:new_plugin['remote'], '/')
+        let l:name = substitute(l:name[-1], '\m\C\.git$', '', '')
     endif
 
-    " Create the name from the remote address (unless one was given)
-    if a:0 == 1 && has_key(l:info, 'name')
-        let l:name = l:info['name']
-    else
-        let l:name = l:remote
-        let l:name = split(l:name, '/')
-        let l:name = l:name[-1]
-        " for some reason, split() does not work on '.'
-        let l:name = substitute(l:name, '\m\C\.', ';', '')
-        let l:name = split(l:name, ';')
-        let l:name = l:name[0]
+    " Merge the given dictionary to the calculated dictionary
+    if l:validate == 1
+        call extend(l:new_plugin, a:1)
+    endif
+    " Ensure 'enabled' is set to 0 so it can be enabled with low complexity
+    let l:new_plugin['enabled'] = 0
+
+    " Add the new plugin to the plugin dictionary
+    if !has_key(s:plugins, l:name)
+        let s:plugins[l:name] = l:new_plugin
     endif
 
-    " Default the auto-enabled to false (unless explicitly stated otherwise)
-    if a:0 == 1 && has_key(l:info, 'enabled')
-        if l:info['enabled'] == 0 || l:info['enabled'] == 1
-            let l:enabled = l:info['enabled']
-        endif
-    else
-        let l:enabled = 0
-    endif
-
-    " Check that the same plugin has not already been added to Vivid
-    if !has_key(s:names, l:name)
-        " Add plugin to the (2D) list
-        let l:plugin = [l:name, l:remote, l:path, l:enabled]
-        call add(s:plugins, l:plugin)
-        " Add plugin to the s:names dictionary to find the info quickly
-        let s:names[l:name] = s:next_location
-        let s:next_location += 1
-    endif
-
-    if l:enabled == 1
-        call s:enable_plugins(l:name, 1)
+    " Enable plugin (if auto-enable was selected)
+    if l:validate == 1 && has_key(a:1, 'enabled') && a:1['enabled'] == 1
+        call vivid#enable(l:name)
     endif
 
     return
-endfunction
-
-
-" Install plugins
-" TODO async download
-" TODO windows compatibility
-function! vivid#install(...) abort
-    if empty(a:000)
-        " Install all plugins if no plugins were specified
-        for l:plugin in s:plugins
-            call s:install_plugins(l:plugin[0])
-        endfor
-    else
-        " If arguments were passed to Vivid, install those plugins
-        for l:plugin in a:000
-            call s:install_plugins(l:plugin)
-        endfor
-    endif
-    return
-endfunction
-
-function! s:install_plugins(plugin) abort
-    let l:echo_message = 'Vivid: Plugin install -'
-    let l:index = get(s:names, a:plugin, -1)
-    if l:index != -1
-        let l:install_path = s:install_dir . '/' . s:plugins[l:index][2]
-        if !isdirectory(l:install_path)
-            let l:cmd = 'git clone ' . s:plugins[l:index][1] . ' ' . l:install_path
-            let l:output = system(l:cmd)
-            " TODO check clone message
-            " TODO verbose mode
-            if l:output =~# '\m\C^fatal: repository '
-                " 'Repository does not exist'
-                echomsg l:echo_message 'Failed:   ' a:plugin
-            elseif l:output =~# '\m\C^Cloning into '
-                echomsg l:echo_message 'Installed:' s:plugins[l:index][0]
-            else
-                echomsg l:echo_message 'Failed:   ' a:plugin
-            endif
-        else
-            " Plugin already installed. If broken, remove with vivid#clean
-            echomsg l:echo_message 'Skipped:  ' s:plugins[l:index][0]
-        endif
-    else
-        " Plugin is not being managed
-        echomsg l:echo_message 'Failed:   ' a:plugin
-    endif
-    return
-endfunction
-
-
-" Update plugins (TODO async download)
-" TODO frozen plugins
-function! vivid#update(...) abort
-    if empty(a:000)
-        " Update all plugins because none were specified
-        for l:plugin in s:plugins
-            call s:update_plugins(l:plugin[0])
-        endfor
-    else
-        " Update specified plugins only
-        for l:plugin in a:000
-            call s:update_plugins(l:plugin)
-        endfor
-    endif
-    return
-endfunction
-
-function! s:update_plugins(plugin) abort
-    let l:echo_message = 'Vivid: Plugin update  -'
-    let l:index = get(s:names, a:plugin, -1)
-    if l:index != -1
-        let l:install_path = s:install_dir . '/' .
-                    \ s:plugins[l:index][2]
-        let l:cmd = 'git -C ' . l:install_path . ' pull'
-        let l:output = system(l:cmd)
-        if l:output =~# '\m\C^Already up-to-date\.'
-            echomsg l:echo_message 'Latest:   ' s:plugins[l:index][0]
-        else
-            let l:output = split(l:output)
-            " TODO give more information
-            if l:output[0] =~# '\m\C^From$'
-                echomsg l:echo_message 'Updated:  ' s:plugins[l:index][0]
-            elseif l:output[0] =~# '\m\C^fatal:$'
-                echomsg l:echo_message 'Failed:   ' s:plugins[l:index][0]
-            else
-                echomsg l:output[0]
-            endif
-        endif
-    else
-        echomsg l:echo_message 'Failed:   ' a:plugin
-    endif
-    return
-endfunction
-
-
-" Enable plugins
-function! vivid#enable(...) abort
-    if empty(a:000)
-        " Enable all plugins because none were specified
-        for l:plugin in s:plugins
-            call s:enable_plugins(l:plugin[0])
-        endfor
-    else
-        " Enable specified plugins only
-        for l:plugin in a:000
-            call s:enable_plugins(l:plugin)
-        endfor
-    endif
-    return
-endfunction
-
-function! s:enable_plugins(plugin, ...) abort
-    let l:index = get(s:names, a:plugin, -1)
-    if l:index != -1
-        if !isdirectory(s:install_dir . '/' . s:plugins[l:index][2])
-            call vivid#install(s:plugins[l:index][0])
-        endif
-        if s:plugins[l:index][3] == 0 || exists('a:1')
-            let s:plugins[l:index][3] = 1
-            silent execute 'packadd ' . s:plugins[l:index][2]
-            let l:doc = expand(s:install_dir . '/' . s:plugins[l:index][2] . '/doc/')
-            call s:gen_helptags(l:doc)
-        endif
-    else
-        echomsg 'Vivid: Plugin enable  - Failed:   ' a:plugin
-    endif
-    return
-endfunction
-
-
-" TODO
-"function! vivid#clean(...) abort
-"endfunction
-
+endfunction  " }}}
 
 " Allows the user to check if a plugin is enabled or not
-" return values:  1 == enabled, 0 == disabled or not a plugin
-function! vivid#enabled(plugin) abort
-    let l:index = get(s:names, a:plugin, -1)
-    if l:index != -1
-        return s:plugins[l:index][3]
+" return values:  1 == enabled, 0 == disabled or not managed by Vivid
+function! vivid#enabled(plugin_name) abort
+    if has_key(s:plugins, a:plugin_name)
+        return s:plugins[a:plugin_name]['enabled']
     else | return 0
     endif
 endfunction
+
+" Usage: let l:var = s:pick_a_dictionary(a:000)
+function! s:pick_a_dictionary(...) abort
+    if empty(a:000) || a:000 == [[]]
+        return 's:plugins'
+    elseif !empty(a:000) && type(a:1) == v:t_list
+        let s:manipulate = {}
+        for l:item in a:1
+            if has_key(s:plugins, l:item) && !has_key(s:manipulate, l:item)
+                let s:manipulate[l:item] = s:plugins[l:item]
+            endif
+        endfor
+        return 's:manipulate'
+    endif
+endfunction
+
+" Install plugins
+function! vivid#install(...) abort
+    let l:dict = s:pick_a_dictionary(a:000)
+    for [l:plugin, l:data] in items({l:dict})
+        let l:echo_message = 'Vivid: Plugin install -'
+        let l:install_path = expand(s:install_location . '/' . l:plugin)
+        if !isdirectory(l:install_path)
+            let l:cmd = 'git clone ' . l:data['remote'] . ' ' . l:install_path
+            let l:output = system(l:cmd)
+            if l:output =~# '\m\C^Cloning into '  " TODO check clone message
+                echomsg l:echo_message 'Installed:' l:plugin
+            else
+                echomsg l:echo_message 'Failed:   ' l:plugin
+            endif
+        else
+            echomsg l:echo_message     'Skipped:  ' l:plugin
+        endif
+    endfor
+endfunction
+
+" Update plugins
+function! vivid#update(...) abort
+    let l:dict = s:pick_a_dictionary(a:000)
+    for l:plugin in keys({l:dict})
+        let l:echo_message = 'Vivid: Plugin update  -'
+        let l:plugin_location = expand(s:install_location . '/' . l:plugin)
+        let l:cmd = 'git -C ' . l:plugin_location . ' pull'
+        let l:output = system(l:cmd)
+
+        if l:output =~# '\m\CAlready up-to-date\.'
+            echomsg l:echo_message     'Latest:   ' l:plugin
+        else
+            let l:output = split(l:output)
+            if l:output[0] =~# '\m\C^From$'
+                echomsg l:echo_message 'Updated:  ' l:plugin
+            else
+                echomsg l:echo_message 'Failed:   ' l:plugin
+            endif
+        endif
+    endfor
+endfunction
+
+" Enable plugins
+function! vivid#enable(...) abort
+    let l:dict = s:pick_a_dictionary(a:000)
+    for l:plugin in keys({l:dict})
+        if {l:dict}[l:plugin]['enabled'] == 0
+            if !isdirectory(s:install_location . '/' . l:plugin)
+                call vivid#install(l:plugin)
+            endif
+            let s:plugins[l:plugin]['enabled'] = 1
+            silent execute 'packadd ' . l:plugin
+            let l:doc = expand(s:install_location . '/' . l:plugin . '/doc/')
+            call s:gen_helptags(l:doc)
+        endif
+    endfor
+    return
+endfunction
+
+" TODO Clean unused plugins
+"function! vivid#clean(...) abort
+"    let l:dict = s:pick_a_dictionary(a:000)
+"    for [l:key, l:value] in items({l:dict})
+"        " Do things
+"    endfor
+"endfunction
 
 
 " vim: set ts=4 sw=4 tw=80 et ft=vim fdm=marker fmr={{{,}}} :

@@ -7,7 +7,7 @@
 [![Licence Badge](https://img.shields.io/badge/Licence-MIT-blue.svg)](https://github.com/axvr/Vivid.vim/blob/master/LICENCE)
 
 
-[Vivid] is designed to allow [Vim] power users to fine tune exactly when their plugins are loaded into Vim. By default all plugins are disabled; the user can create their own conditions and rules to enable the plugins directly from their ```$MYVIMRC``` file.
+[Vivid] is designed to allow [Vim] power users to fine tune exactly when their plugins are loaded into Vim. By default all plugins are disabled; the user can create their own conditions and rules to enable the plugins directly from their `$MYVIMRC` file.
 
 
 ## About
@@ -23,26 +23,23 @@
 * Auto-enable plugins
 * Check if a plugin is enabled
 * Auto generate [help tags] for each plugins
+* Change the directory plugins are installed to
 
 Planned features:
 
 * Remove unused plugins
 * Async update and install of plugins
-* Windows support
 * Local plugin repositories (file://)
 * Freeze plugins to a specific version or commit
 * Update by tags
 * Update from a chosen branch
 * Vim help doc (similar to the [Vivid wiki])
 * More verbose processes (can be toggled on or off)
-* Change the directory plugins are installed to
 
 
 ---
 
-
 ![Vivid Updating Plugins](images/vivid-update.png)
-
 
 ---
 
@@ -55,7 +52,7 @@ See the [Vivid wiki] for more information, examples and a [FAQ].
 
 [Vivid] requires that the [Git] VCS is installed on your system, including [Vim] (8.0+) or [Neovim].
 
-NOTE: Vivid only works with Git managed plugins.
+**NOTE:** Vivid only works with Git managed plugins.
 
 
 ### [Install Vivid]
@@ -72,22 +69,22 @@ Alternatively, you can install Vivid for Neovim by running this command:
 git clone https://github.com/axvr/Vivid.vim ~/.config/nvim/pack/vivid/opt/Vivid.vim
 ```
 
-Then to enable Vivid place ``packadd Vivid.vim`` at the top of your ``$MYVIMRC`` file. No other boilerplate code is required in your Vim config.
+Then to enable Vivid place `packadd Vivid.vim` at the top of your `$MYVIMRC` file. No other boilerplate code is required in your Vim config.
 
 
 ### [Using Vivid]
 
 To enable Vivid the line `packadd Vivid.vim` must be added to your `$MYVIMRC` before any plugin definitions or plugin settings.
 
-By default Vivid enables no plugins, this is because of it's heavy focus on lazy loading and control. This behaviour can be reversed by including `call vivid#enable()` or `PluginEnable!` after adding all of the plugins to Vivid.
+By default Vivid enables no plugins, this is because of it's heavy focus on lazy loading and control. This behaviour can be reversed by including `call vivid#enable()` or `PluginEnable` after adding all of the plugins to Vivid.
 
 Most actions that Vivid can perform have two methods of use, functions and commands. It is recommended to use functions in Vim scripts and commands when using command mode.
 
-**NOTE:** When using Vivid, never use the ``packloadall`` or the ``packadd`` on any plugin that Vivid is managing. Using these commands will cause Vivid to break for that session. The exception is the ``packadd Vivid.vim`` before any plugin config.
+**NOTE:** When using Vivid, never use the `packloadall` or the `packadd` on any plugin that Vivid is managing. Using these commands will cause Vivid to break for that session. The exception is the `packadd Vivid.vim` before any plugin config.
 
 #### Adding Plugins
 
-Vivid will manage any plugins which are defined using the ``vivid#add`` function, or the `Plugin` command. Vivid provides many options when adding plugins. The commands are based off of the [Vundle] commands (where [Vivid's origins] lie)
+Vivid will manage any plugins which are defined using the `vivid#add` function, or the `Plugin` command. Vivid provides many options when adding plugins. The commands are based off of the [Vundle] commands (where [Vivid's origins] lie)
 
 Using the function:
 
@@ -99,8 +96,7 @@ call vivid#add('tpope/vim-fugitive')            " Simple adding from GitHub (sam
 call vivid#add('https://github.com/tpope/vim-fugitive') " Using full remote address to plugin
 call vivid#add('tpope/vim-fugitive', { 'enabled': 1, }) " Add and enable plugin by default
 call vivid#add('tpope/vim-fugitive', {          " Other options to provide to Vivid
-        \ 'name': 'Fugitive',                   " Change the name to use to refer to the pluguin
-        \ 'path': 'fugitive.vim',               " Change the folder the plugin is in to avoid naming collisions
+        \ 'name': 'fugitive.vim',               " Set the name to refer to the plugin by
         \ 'enabled': 1,                         " Auto-enable plugin, can be set to 1 or 0, the default is 0
         \ })
 ```
@@ -115,22 +111,21 @@ Plugin 'tpope/vim-fugitive'                     " Simple adding from GitHub (sam
 Plugin 'https://github.com/tpope/vim-fugitive'  " Using full remote address to plugin
 Plugin 'tpope/vim-fugitive', { 'enabled': 1, }  " Add and enable plugin by default
 Plugin 'tpope/vim-fugitive', {                  " Other options to provide to Vivid
-        \ 'name': 'Fugitive',                   " Change the name to use to refer to the pluguin
-        \ 'path': 'fugitive.vim',               " Change the folder the plugin is in to avoid naming collisions
+        \ 'name': 'fugitive.vim',               " Set the name to refer to the plugin by
         \ 'enabled': 1,                         " Auto-enable plugin, can be set to 1 or 0, the default is 0
         \ }
 ```
 
 #### Automatic Plugin Naming
 
-Whenever plugins are specified Vivid uses the names provided when added, if none were given the plugin name is generated by Vivid to being the last section of the URL without `.vim` and `.git` on it. 
+Whenever plugins are specified Vivid uses the names provided when added using the `name` option. If none were provided the plugin name is generated by Vivid to being the last section of the URL without `.git` on the end of it.
 
 Examples of automatic plugin naming:
 
 ```vim
-Plugin 'tpope/vim-fugitive'  " Name would be: vim-fugitive
-Plugin 'rhysd/clever-f.vim'  " Name would be: clever-f
-Plugin 'https://github.com/wellle/targets.vim.git'  " Name would be: targets
+Plugin 'tpope/vim-fugitive'   " Name would be: vim-fugitive
+Plugin 'rhysd/committia.vim'  " Name would be: committia.vim
+Plugin 'https://github.com/wellle/targets.vim.git'  " Name would be: targets.vim
 ```
 
 
@@ -143,18 +138,18 @@ Vivid can install plugins using one of the 3 method: commands, functions, or whe
 The command method can have plugins specified, if plugins are not specified it will install all plugins.
 
 ```vim
-" To install the vim-fugitive and clever-f plugins
-:PluginInstall vim-fugitive clever-f
+" To install the vim-fugitive and committia plugins
+:PluginInstall vim-fugitive committia.vim
 
 " To install all plugins
-:PluginInstall!
+:PluginInstall
 ```
 
 The function method can also have plugins specified, and again if plugins are not specified, it will install all plugins which were added for Vivid to manage.
 
 ```vim
-" To install the vim-fugitive and clever-f plugins
-:call vivid#install('vim-fugitive', 'clever-f')
+" To install the vim-fugitive and committia plugins
+:call vivid#install('vim-fugitive', 'committia.vim')
 
 " To install all plugins
 :call vivid#install()
@@ -163,7 +158,7 @@ The function method can also have plugins specified, and again if plugins are no
 The final method of installing plugins is by enabling them, if the plugin cannot be found Vivid will automatically install it.
 
 ```vim
-:PluginEnable vim-fugitive clever-f
+:PluginEnable vim-fugitive committia.vim
 ```
 
 
@@ -174,18 +169,18 @@ Vivid is capable of updating your plugins. It can update them all or only update
 Command method:
 
 ```vim
-" Update specified plugins: vim-fugitive and clever-f
-:PluginUpdate vim-fugitive clever-f
+" Update specified plugins: vim-fugitive and committia
+:PluginUpdate vim-fugitive committia.vim
 
 " Update all plugins
-:PluginUpdate!
+:PluginUpdate
 ```
 
 Function method:
 
 ```vim
-" Update specified plugins: vim-fugitive and clever-f
-:call vivid#update('vim-fugitive', 'clever-f')
+" Update specified plugins: vim-fugitive and committia
+:call vivid#update('vim-fugitive', 'committia.vim')
 
 " Update all plugins
 :call vivid#update()
@@ -201,18 +196,18 @@ As you may already know, by default Vivid loads no plugins, and encourages the u
 The command:
 
 ```vim
-" Enable specified plugins: vim-fugitive and clever-f
-:PluginEnable vim-fugitive clever-f
+" Enable specified plugins: vim-fugitive and committia
+:PluginEnable vim-fugitive committia.vim
 
 " Enable all plugins (Vundle like behaviour)
-:PluginEnable!
+:PluginEnable
 ```
 
 The function:
 
 ```vim
-" Enable specified plugins: vim-fugitive and clever-f
-:call vivid#enable('vim-fugitive', 'clever-f')
+" Enable specified plugins: vim-fugitive and committia
+:call vivid#enable('vim-fugitive', 'committia.vim')
 
 " Enable all plugins (Vundle like behaviour)
 :call vivid#enable()
@@ -231,11 +226,11 @@ augroup END
 
 #### Check Plugin Status
 
-Vivid allows you to write complex scripts in your ``$MYVIMRC``, one of the features it provides is checking whether a plugin is enabled or not. The simple feature opens many possibilities, such as commands are mapped when the plugin is enabled, or a different config and plugins in Neovim than in Vim when using the same configuration file.
+Vivid allows you to write complex scripts in your `$MYVIMRC`, one of the features it provides is checking whether a plugin is enabled or not. The simple feature opens many possibilities, such as commands are mapped when the plugin is enabled, or a different config and plugins in Neovim than in Vim when using the same configuration file.
 
 This is a much needed feature as not all plugins set the `g:loaded_plugin_name` variable.
 
-The function is ``vivid#enabled('plugin-name-here')``, and it takes only one argument, the name of the plugin to check the status of.
+The function is `vivid#enabled('plugin-name-here')`, and it takes only one argument, the name of the plugin to check the status of.
 
 Outputs from this function are as follows:
 * `0` : Disabled or not added for Vivid to manage
@@ -244,7 +239,7 @@ Outputs from this function are as follows:
 Example of plugin status checking in a vimrc
 
 ```vim
-" Add Git branch to Vim statusline if vim-fugitive is on and 
+" Add Git branch to Vim statusline if vim-fugitive is on and
 " is in a git controlled repo to avoid any errors
 function! GitBranch() abort
     if vivid#enabled('vim-fugitive') && fugitive#head() != ''
