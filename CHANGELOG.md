@@ -46,7 +46,7 @@ Leave 3 lines between previous change log item -->
 
 ---
 
-## [1.0.0] - 2017-XX-XX
+## [1.0.0] - 2017-10-XX
 
 ### Added
 * [#5] Install plugins
@@ -57,8 +57,9 @@ Leave 3 lines between previous change log item -->
 * [#19] Commands and functions to control Vivid
 * [#9] Generate help tags
 * Auto-enable plugins
-* Set relative install path
+* Set plugin name
 * Plugin completion for commands
+* Set full install path for plugins using `packpath` (will be improved in the future)
 
 
 

@@ -52,7 +52,7 @@ call s:gen_helptags(expand(s:install_location . '/Vivid.vim/doc/'))
 " Add a plugin for Vivid to manage {{{
 " Example:
 " call vivid#add('tpope/vim-fugitive', {
-"     \ 'path': 'fugitive.vim',
+"     \ 'name': 'fugitive.vim',
 "     \ 'enabled': 1,
 "     \ } )
 " Arguments: 'remote', { 'path': 'string', 'enabled': boolean }
@@ -78,13 +78,12 @@ function! vivid#add(remote, ...) abort
     else | let l:validate = 0
     endif
 
-
     " Generate the required local path if none were given
-    if l:validate == 1 && has_key(a:1, 'path')
-        let l:path = a:1['path']
+    if l:validate == 1 && has_key(a:1, 'name')
+        let l:name = a:1['name']
     else
-        let l:path = split(l:new_plugin['remote'], '/')
-        let l:path = substitute(l:path[-1], '\m\C\.git$', '', '')
+        let l:name = split(l:new_plugin['remote'], '/')
+        let l:name = substitute(l:name[-1], '\m\C\.git$', '', '')
     endif
 
     " Merge the given dictionary to the calculated dictionary
@@ -95,13 +94,13 @@ function! vivid#add(remote, ...) abort
     let l:new_plugin['enabled'] = 0
 
     " Add the new plugin to the plugin dictionary
-    if !has_key(s:plugins, l:path)
-        let s:plugins[l:path] = l:new_plugin
+    if !has_key(s:plugins, l:name)
+        let s:plugins[l:name] = l:new_plugin
     endif
 
     " Enable plugin (if auto-enable was selected)
     if l:validate == 1 && has_key(a:1, 'enabled') && a:1['enabled'] == 1
-        call vivid#enable(l:path)
+        call vivid#enable(l:name)
     endif
 
     return
@@ -109,9 +108,9 @@ endfunction  " }}}
 
 " Allows the user to check if a plugin is enabled or not
 " return values:  1 == enabled, 0 == disabled or not managed by Vivid
-function! vivid#enabled(plugin_path) abort
-    if has_key(s:plugins, a:plugin_path)
-        return s:plugins[a:plugin_path]['enabled']
+function! vivid#enabled(plugin_name) abort
+    if has_key(s:plugins, a:plugin_name)
+        return s:plugins[a:plugin_name]['enabled']
     else | return 0
     endif
 endfunction
@@ -134,19 +133,19 @@ endfunction
 " Install plugins
 function! vivid#install(...) abort
     let l:dict = s:pick_a_dictionary(a:000)
-    for [l:key, l:value] in items({l:dict})
+    for [l:plugin, l:data] in items({l:dict})
         let l:echo_message = 'Vivid: Plugin install -'
-        let l:install_path = expand(s:install_location . '/' . l:key)
+        let l:install_path = expand(s:install_location . '/' . l:plugin)
         if !isdirectory(l:install_path)
-            let l:cmd = 'git clone ' . l:value['remote'] . ' ' . l:install_path
+            let l:cmd = 'git clone ' . l:data['remote'] . ' ' . l:install_path
             let l:output = system(l:cmd)
             if l:output =~# '\m\C^Cloning into '  " TODO check clone message
-                echomsg l:echo_message 'Installed:' l:key
+                echomsg l:echo_message 'Installed:' l:plugin
             else
-                echomsg l:echo_message 'Failed:   ' l:key
+                echomsg l:echo_message 'Failed:   ' l:plugin
             endif
         else
-            echomsg l:echo_message     'Skipped:  ' l:key
+            echomsg l:echo_message     'Skipped:  ' l:plugin
         endif
     endfor
 endfunction
@@ -154,20 +153,20 @@ endfunction
 " Update plugins
 function! vivid#update(...) abort
     let l:dict = s:pick_a_dictionary(a:000)
-    for l:key in keys({l:dict})
+    for l:plugin in keys({l:dict})
         let l:echo_message = 'Vivid: Plugin update  -'
-        let l:plugin_location = expand(s:install_location . '/' . l:key)
+        let l:plugin_location = expand(s:install_location . '/' . l:plugin)
         let l:cmd = 'git -C ' . l:plugin_location . ' pull'
         let l:output = system(l:cmd)
 
         if l:output =~# '\m\CAlready up-to-date\.'
-            echomsg l:echo_message     'Latest:   ' l:key
+            echomsg l:echo_message     'Latest:   ' l:plugin
         else
             let l:output = split(l:output)
             if l:output[0] =~# '\m\C^From$'
-                echomsg l:echo_message 'Updated:  ' l:key
+                echomsg l:echo_message 'Updated:  ' l:plugin
             else
-                echomsg l:echo_message 'Failed:   ' l:key
+                echomsg l:echo_message 'Failed:   ' l:plugin
             endif
         endif
     endfor
@@ -176,14 +175,14 @@ endfunction
 " Enable plugins
 function! vivid#enable(...) abort
     let l:dict = s:pick_a_dictionary(a:000)
-    for l:key in keys({l:dict})
-        if {l:dict}[l:key]['enabled'] == 0
-            if !isdirectory(s:install_location . '/' . l:key)
-                call vivid#install(l:key)
+    for l:plugin in keys({l:dict})
+        if {l:dict}[l:plugin]['enabled'] == 0
+            if !isdirectory(s:install_location . '/' . l:plugin)
+                call vivid#install(l:plugin)
             endif
-            let s:plugins[l:key]['enabled'] = 1
-            silent execute 'packadd ' . l:key
-            let l:doc = expand(s:install_location . '/' . l:key . '/doc/')
+            let s:plugins[l:plugin]['enabled'] = 1
+            silent execute 'packadd ' . l:plugin
+            let l:doc = expand(s:install_location . '/' . l:plugin . '/doc/')
             call s:gen_helptags(l:doc)
         endif
     endfor
