@@ -2,7 +2,6 @@
 " Name:         Vivid.vim
 " Author:       Alex Vear
 " HomePage:     https://github.com/axvr/Vivid.vim
-" Readme:       https://github.com/axvr/Vivid.vim/blob/master/README.md
 " ==============================================================================
 
 command! -nargs=+ -bar Plugin call vivid#add(<args>)

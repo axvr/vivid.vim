@@ -5,7 +5,7 @@
 " Version:      1.0.0
 " ==============================================================================
 
-" FIXME make DOS compatible (see:  :h dos  :h shellescape())
+" FIXME make fully DOS compatible (see:  :h dos  :h shellescape())
 " TODO add support for plugins which use git submodules
 " TODO allow full install paths to be specified
 
@@ -135,7 +135,7 @@ function! vivid#install(...) abort
         if !isdirectory(l:install_path)
             let l:cmd = 'git clone ' . l:data['remote'] . ' ' . l:install_path
             let l:output = system(l:cmd)
-            if l:output =~# '\m\C^Cloning into '  " TODO check clone message
+            if l:output =~# '\m\C^Cloning into ' || l:output =~# ''
                 echomsg l:echo_message 'Installed:' l:plugin
             else
                 echomsg l:echo_message 'Failed:   ' l:plugin
@@ -171,13 +171,14 @@ endfunction
 " Enable plugins
 function! vivid#enable(...) abort
     let l:dict = s:pick_a_dictionary(a:000)
-    for l:plugin in keys({l:dict})
-        if {l:dict}[l:plugin]['enabled'] == 0
+    for [l:plugin, l:data] in items({l:dict})
+        if l:data['enabled'] == 0
             if !isdirectory(s:install_location . '/' . l:plugin)
                 call vivid#install(l:plugin)
             endif
             let s:plugins[l:plugin]['enabled'] = 1
             silent execute 'packadd ' . l:plugin
+            " FIXME below help tag gen
             let l:doc = expand(s:install_location . '/' . l:plugin . '/doc/')
             call s:gen_helptags(l:doc)
         endif
