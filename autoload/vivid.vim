@@ -37,10 +37,10 @@ function! vivid#complete(A,L,P)
     return sort(keys(s:plugins))
 endfunction
 
-" Generate helptags FIXME needs optimising, adapting & improving
-function! s:gen_helptags(doc) abort
-    if isdirectory(a:doc)
-        execute 'helptags ' . a:doc
+" Generate helptags
+function! s:gen_helptags(doc_location) abort
+    if isdirectory(a:doc_location)
+        execute 'helptags ' . a:doc_location
     endif
 endfunction
 call s:gen_helptags(expand(s:install_location . '/Vivid.vim/doc/'))
@@ -178,7 +178,6 @@ function! vivid#enable(...) abort
             endif
             let s:plugins[l:plugin]['enabled'] = 1
             silent execute 'packadd ' . l:plugin
-            " FIXME below help tag gen
             let l:doc = expand(s:install_location . '/' . l:plugin . '/doc/')
             call s:gen_helptags(l:doc)
         endif

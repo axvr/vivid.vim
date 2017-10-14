@@ -39,7 +39,7 @@ Planned features:
 
 ---
 
-![Vivid Updating Plugins](images/vivid-update.png)
+![Vivid Updating Plugins](https://github.com/axvr/codedump/raw/master/project-assets/Vivid.vim/vivid-update.png)
 
 ---
 

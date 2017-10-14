@@ -57,9 +57,9 @@ Leave 3 lines between previous change log item -->
 * [#19] Commands and functions to control Vivid
 * [#9] Generate help tags
 * Auto-enable plugins
-* Set plugin name
-* Plugin completion for commands
-* Set full install path for plugins using `packpath` (will be improved in the future)
+* Set plugin names
+* Plugin name completion for commands
+* Set plugin install location using `packpath` (will be improved in the future)
 
 
 
