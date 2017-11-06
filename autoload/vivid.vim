@@ -3,6 +3,7 @@
 " Author:       Alex Vear
 " HomePage:     https://github.com/axvr/Vivid.vim
 " Version:      1.0.0
+" Licence:      MIT Licence
 " ==============================================================================
 
 " FIXME make fully DOS compatible (see:  :h dos  :h shellescape())
@@ -20,7 +21,7 @@ let s:plugins = { 'Vivid.vim': {
             \ }, }
 
 " TODO Print more information to the user about updates, etc.
-if !exists('g:vivid#verbose')   | let g:vivid#verbose = 0   | endif
+if !exists('g:vivid#verbose') | let g:vivid#verbose = 0 | endif
 
 " Find Vivid install location (fast if nothing has been added to the 'rtp' yet)
 let s:where_am_i = split(&runtimepath, ',')
@@ -155,7 +156,8 @@ function! vivid#update(...) abort
         let l:cmd = 'git -C ' . l:plugin_location . ' pull'
         let l:output = system(l:cmd)
 
-        if l:output =~# '\m\CAlready up-to-date\.'
+        if l:output =~# '\m\CAlready up-to-date\.' || 
+                    \ l:output =~# '\m\CAlready up to date\.'
             echomsg l:echo_message     'Latest:   ' l:plugin
         else
             let l:output = split(l:output)

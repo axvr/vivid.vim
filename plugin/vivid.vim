@@ -2,6 +2,7 @@
 " Name:         Vivid.vim
 " Author:       Alex Vear
 " HomePage:     https://github.com/axvr/Vivid.vim
+" Licence:      MIT Licence
 " ==============================================================================
 
 command! -nargs=+ -bar Plugin call vivid#add(<args>)
