@@ -6,7 +6,7 @@
 " Licence:      MIT Licence
 " ==============================================================================
 
-" FIXME make fully DOS compatible (see:  :h dos  :h shellescape())
+" TODO add extra safety using 'shellescape()'
 " TODO add support for plugins which use git submodules
 " TODO allow full install paths to be specified
 
@@ -63,7 +63,8 @@ function! vivid#add(remote, ...) abort
     if a:remote =~? '\m\C^https:\/\/.\+' || a:remote =~? '\m\C^http:\/\/.\+'
         let l:new_plugin['remote'] = a:remote
     elseif a:remote =~? '\m\C^.\+\/.\+'
-        let l:new_plugin['remote'] = 'https://git::@github.com/' . a:remote . '.git'
+        let l:new_plugin['remote'] = 'https://git::@github.com/' .
+                    \ a:remote . '.git'
     else
         echomsg 'Vivid: Remote address creation fail:' a:remote
         return
@@ -156,7 +157,7 @@ function! vivid#update(...) abort
         let l:cmd = 'git -C ' . l:plugin_location . ' pull'
         let l:output = system(l:cmd)
 
-        if l:output =~# '\m\CAlready up-to-date\.' || 
+        if l:output =~# '\m\CAlready up-to-date\.' ||
                     \ l:output =~# '\m\CAlready up to date\.'
             echomsg l:echo_message     'Latest:   ' l:plugin
         else
@@ -173,8 +174,8 @@ endfunction
 " Enable plugins
 function! vivid#enable(...) abort
     let l:dict = s:pick_a_dictionary(a:000)
-    for [l:plugin, l:data] in items({l:dict})
-        if l:data['enabled'] == 0
+    for l:plugin in keys({l:dict})
+        if s:plugins[l:plugin]['enabled'] == 0
             if !isdirectory(s:install_location . '/' . l:plugin)
                 call vivid#install(l:plugin)
             endif
@@ -187,13 +188,31 @@ function! vivid#enable(...) abort
     return
 endfunction
 
-" TODO Clean unused plugins
-"function! vivid#clean(...) abort
-"    let l:dict = s:pick_a_dictionary(a:000)
-"    for [l:key, l:value] in items({l:dict})
-"        " Do things
-"    endfor
-"endfunction
+" TODO Create a list of all dirs
+function! s:list_all_files(...) abort
+    if has('win64') || has('win32') || has('win16')
+        execute 'dir /b ' . s:install_location
+    elseif has('unix')
+        " TODO  ^check this
+        " FIXME (create full 'ls' command)
+        execute 'ls ' .s:install_location
+    endif
+endfunction
+
+" Clean unused plugins
+function! vivid#clean(...) abort
+    if empty(a:000) || a:000 == [[]]
+        " TODO Find dirs which are not managed plugins and remove them
+        echomsg 'This feature has not been implemented yet'
+    else
+        let l:dict = s:pick_a_dictionary(a:000)
+        for l:plugin in keys({l:dict})
+            call delete(expand(s:install_location . '/' . l:plugin), 'rf')
+            let s:plugins[l:plugin]['enabled'] = 0
+            echomsg 'Vivid: Plugin clean   - Deleted:  ' l:plugin
+        endfor
+    endif
+endfunction
 
 
 " vim: set ts=4 sw=4 tw=80 et ft=vim fdm=marker fmr={{{,}}} :
