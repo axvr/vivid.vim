@@ -2,11 +2,12 @@
 
 History of all of the changes made to this project
 
-This is the `CHANGELOG.md` file for [Vivid.vim]. Created by [Alex Vear - axvr](https://github.com/axvr/Vivid.vim)
+This is the `CHANGELOG.md` file for [Vivid.vim]. Created by [Alex Vear - axvr].
 
-This project is licenced under the [MIT Licence](https://github.com/axvr/Vivid.vim/blob/master/LICENCE).
+This project is licenced under the [MIT Licence].
 
-The format is based on [Keep a Changelog](http://keepachangelog.com/) and it also adheres to [Semantic Versioning](http://semver.org/).
+The format is based on [Keep a Changelog] and it also adheres to [Semantic
+Versioning].
 
 <!-- Styled in this format:
 
@@ -65,7 +66,7 @@ Leave 3 lines between previous change log item -->
 
 ## [Pre 1.0.0]
 
-* See [Vivid-Legacy.vim](https://github.com/axvr/Vivid-Legacy.vim) and it's [change log](https://github.com/axvr/Vivid-Legacy.vim/blob/master/CHANGELOG.md) for changes before the rewrite.
+* See [Vivid-Legacy.vim] and it's [change log] for changes before the rewrite.
 
 
 
@@ -79,4 +80,12 @@ Leave 3 lines between previous change log item -->
 [#17]:https://github.com/axvr/Vivid.vim/issues/17
 [#19]:https://github.com/axvr/Vivid.vim/issues/19
 
+<!-- Other Links -->
 
+[Vivid.vim]:https://github.com/axvr/Vivid.vim
+[Alex Vear - axvr]:https://github.com/axvr
+[MIT Licence]:https://github.com/axvr/Vivid.vim/blob/master/LICENCE
+[Keep a Changelog]:http://keepachangelog.com/
+[Semantic Versioning]:http://semver.org/
+[Vivid-Legacy.vim]:https://github.com/axvr/Vivid-Legacy.vim
+[change log]:https://github.com/axvr/Vivid-Legacy.vim/blob/master/CHANGELOG.md
