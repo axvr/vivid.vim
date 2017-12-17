@@ -33,6 +33,13 @@ for s:path in s:where_am_i
     endif
 endfor
 
+function! s:check_system_compatibility()
+    if !executable('git')
+        echomsg 'Error: Git is not installed on this system.'
+        finish
+    endif
+endfunction
+
 " Completion for Vivid commands  TODO significantly improve this
 function! vivid#complete(A,L,P)
     return sort(keys(s:plugins))
@@ -130,6 +137,7 @@ endfunction
 
 " Install plugins
 function! vivid#install(...) abort
+    call s:check_system_compatibility()
     let l:dict = s:pick_a_dictionary(a:000)
     for [l:plugin, l:data] in items({l:dict})
         let l:echo_message = 'Vivid: Plugin install -'
@@ -151,6 +159,7 @@ endfunction
 
 " Update plugins
 function! vivid#update(...) abort
+    call s:check_system_compatibility()
     let l:dict = s:pick_a_dictionary(a:000)
     for l:plugin in keys({l:dict})
         let l:echo_message = 'Vivid: Plugin update  -'
