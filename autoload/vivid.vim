@@ -135,7 +135,8 @@ function! vivid#install(...) abort
         let l:echo_message = 'Vivid: Plugin install -'
         let l:install_path = expand(s:install_location . '/' . l:plugin)
         if !isdirectory(l:install_path)
-            let l:cmd = 'git clone ' . l:data['remote'] . ' ' . l:install_path
+            let l:cmd = 'git clone --recurse-submodules ' . 
+                        \ l:data['remote'] . ' ' . l:install_path
             let l:output = system(l:cmd)
             if l:output =~# '\m\C^Cloning into ' || l:output =~# ''
                 echomsg l:echo_message 'Installed:' l:plugin
@@ -154,7 +155,7 @@ function! vivid#update(...) abort
     for l:plugin in keys({l:dict})
         let l:echo_message = 'Vivid: Plugin update  -'
         let l:plugin_location = expand(s:install_location . '/' . l:plugin)
-        let l:cmd = 'git -C ' . l:plugin_location . ' pull'
+        let l:cmd = 'git -C ' . l:plugin_location . ' pull --recurse-submodules'
         let l:output = system(l:cmd)
 
         if l:output =~# '\m\CAlready up-to-date\.' ||
