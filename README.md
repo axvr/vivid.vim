@@ -4,7 +4,7 @@
 Vim.**
 
 <!-- Badges made using https://shields.io/ -->
-[![Version Badge](https://img.shields.io/badge/Version-v1.0.0-brightgreen.svg)](https://github.com/axvr/Vivid.vim/releases)
+[![Version Badge](https://img.shields.io/badge/Version-v1.0.0--alpha.1-brightgreen.svg)](https://github.com/axvr/Vivid.vim/releases)
 [![Licence Badge](https://img.shields.io/badge/Licence-MIT-blue.svg)](https://github.com/axvr/Vivid.vim/blob/master/LICENCE)
 
 
@@ -30,6 +30,7 @@ designed to be fast, minimal & efficient.
 * Check if a plugin is enabled
 * Auto generate [help tags] for each plugins
 * Change the directory plugins are installed to
+* Basic plugin cleaning functionality (will be improved)
 
 Planned features:
 
