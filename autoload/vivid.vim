@@ -6,13 +6,12 @@
 " Licence:      MIT Licence
 " ==============================================================================
 
-" TODO add extra safety using 'shellescape()'
-" TODO add support for plugins which use git submodules
 " TODO allow full install paths to be specified
+" TODO allow different branches to be tracked
 
 " Prevent Vivid being loaded multiple times (and users can check if enabled)
 if exists('g:loaded_vivid') || !has('packages') || &cp | finish | endif
-let g:loaded_vivid = 1
+let g:loaded_vivid = 1 | lockvar g:loaded_vivid
 
 " New central plugin store (dictionary contains a sub-dictionary)
 let s:plugins = { 'Vivid.vim': {
@@ -32,6 +31,12 @@ for s:path in s:where_am_i
         break
     endif
 endfor
+
+function! s:check_system_compatibility()
+    if !executable('git')
+        throw 'Git is not installed on this system'
+    endif
+endfunction
 
 " Completion for Vivid commands  TODO significantly improve this
 function! vivid#complete(A,L,P)
@@ -58,16 +63,13 @@ function! vivid#add(remote, ...) abort
     " Create empty dictionary to be added to s:plugins
     let l:new_plugin = {}
 
-    " Check the remote addresses are valid (mostly, can't check everything)
-    " TODO add more sources
-    if a:remote =~? '\m\C^https:\/\/.\+' || a:remote =~? '\m\C^http:\/\/.\+'
-        let l:new_plugin['remote'] = a:remote
-    elseif a:remote =~? '\m\C^.\+\/.\+'
-        let l:new_plugin['remote'] = 'https://git::@github.com/' .
-                    \ a:remote . '.git'
+    " Create the remote address, if the shortened variant was provided
+    if a:remote =~# '\m\C^[-A-Za-z0-9]\+\/[-._A-Za-z0-9]\+$'
+        let l:new_plugin['remote'] = 'https://git::@github.com/' . a:remote
+    elseif empty(a:remote)
+        throw 'No remote address given'
     else
-        echomsg 'Vivid: Remote address creation fail:' a:remote
-        return
+        let l:new_plugin['remote'] = a:remote
     endif
 
     " Validate arguments given
@@ -130,17 +132,21 @@ endfunction
 
 " Install plugins
 function! vivid#install(...) abort
+    call s:check_system_compatibility()
     let l:dict = s:pick_a_dictionary(a:000)
     for [l:plugin, l:data] in items({l:dict})
         let l:echo_message = 'Vivid: Plugin install -'
         let l:install_path = expand(s:install_location . '/' . l:plugin)
         if !isdirectory(l:install_path)
-            let l:cmd = 'git clone ' . l:data['remote'] . ' ' . l:install_path
+            let l:cmd = 'git clone --recurse-submodules "' .
+                        \ l:data['remote'] . '" "' . l:install_path . '"'
             let l:output = system(l:cmd)
-            if l:output =~# '\m\C^Cloning into ' || l:output =~# ''
-                echomsg l:echo_message 'Installed:' l:plugin
-            else
+            if l:output =~# '\m\Cwarning:' || l:output =~# 'fatal:'
+                echohl ErrorMsg
                 echomsg l:echo_message 'Failed:   ' l:plugin
+                echohl None
+            else
+                echomsg l:echo_message 'Installed:' l:plugin
             endif
         else
             echomsg l:echo_message     'Skipped:  ' l:plugin
@@ -150,11 +156,13 @@ endfunction
 
 " Update plugins
 function! vivid#update(...) abort
+    call s:check_system_compatibility()
     let l:dict = s:pick_a_dictionary(a:000)
     for l:plugin in keys({l:dict})
         let l:echo_message = 'Vivid: Plugin update  -'
         let l:plugin_location = expand(s:install_location . '/' . l:plugin)
-        let l:cmd = 'git -C ' . l:plugin_location . ' pull'
+        let l:cmd = 'git -C "' . l:plugin_location .
+                    \ '" pull --recurse-submodules'
         let l:output = system(l:cmd)
 
         if l:output =~# '\m\CAlready up-to-date\.' ||
@@ -165,7 +173,9 @@ function! vivid#update(...) abort
             if l:output[0] =~# '\m\C^From$'
                 echomsg l:echo_message 'Updated:  ' l:plugin
             else
+                echohl WarningMsg
                 echomsg l:echo_message 'Failed:   ' l:plugin
+                echohl None
             endif
         endif
     endfor
@@ -190,13 +200,7 @@ endfunction
 
 " TODO Create a list of all dirs
 function! s:list_all_files(...) abort
-    if has('win64') || has('win32') || has('win16')
-        execute 'dir /b ' . s:install_location
-    elseif has('unix')
-        " TODO  ^check this
-        " FIXME (create full 'ls' command)
-        execute 'ls ' .s:install_location
-    endif
+    " Use globpath() and set return output as a list
 endfunction
 
 " Clean unused plugins
