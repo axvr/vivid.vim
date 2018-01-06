@@ -47,7 +47,7 @@ Leave 3 lines between previous change log item -->
 
 ---
 
-## [1.0.0] - 2017-XX-XX
+## [1.0.0] - 2018-XX-XX
 
 ### Added
 * [#5] Install plugins
@@ -61,7 +61,7 @@ Leave 3 lines between previous change log item -->
 * Set plugin names
 * Plugin name completion for commands
 * Set plugin install location using `packpath`
-* Add support for plugins using submodules
+* Add support for plugins which use git submodules
 
 
 
