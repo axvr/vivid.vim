@@ -12,7 +12,7 @@
 
 " Prevent Vivid being loaded multiple times (and users can check if enabled)
 if exists('g:loaded_vivid') || !has('packages') || &cp | finish | endif
-lockvar let g:loaded_vivid = 1
+let g:loaded_vivid = 1 | lockvar g:loaded_vivid
 
 " New central plugin store (dictionary contains a sub-dictionary)
 let s:plugins = { 'Vivid.vim': {
@@ -35,9 +35,7 @@ endfor
 
 function! s:check_system_compatibility()
     if !executable('git')
-        echomsg 'Error: Git is not installed on this system.'
-        "finish
-        " Cancel execution (use error handling?)
+        throw 'Git is not installed on this system'
     endif
 endfunction
 
@@ -67,9 +65,10 @@ function! vivid#add(remote, ...) abort
     let l:new_plugin = {}
 
     " Create the remote address, if the shortened variant was provided
-    " TODO add condition to prevent empty remote addresses being given
     if a:remote =~# '\m\C^[-A-Za-z0-9]\+\/[-._A-Za-z0-9]\+$'
         let l:new_plugin['remote'] = 'https://git::@github.com/' . a:remote
+    elseif empty(a:remote)
+        throw 'No remote address given'
     else
         let l:new_plugin['remote'] = a:remote
     endif
@@ -81,7 +80,6 @@ function! vivid#add(remote, ...) abort
     endif
 
     " Generate the required local path if none were given
-    " TODO optimise this
     if l:validate == 1 && has_key(a:1, 'name')
         let l:name = a:1['name']
     else
