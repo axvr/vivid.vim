@@ -36,7 +36,8 @@ endfor
 function! s:check_system_compatibility()
     if !executable('git')
         echomsg 'Error: Git is not installed on this system.'
-        finish
+        "finish
+        " Cancel execution (use error handling?)
     endif
 endfunction
 
@@ -200,13 +201,7 @@ endfunction
 
 " TODO Create a list of all dirs
 function! s:list_all_files(...) abort
-    if has('win64') || has('win32') || has('win16')
-        execute 'dir /b ' . s:install_location
-    elseif has('unix')
-        " TODO  ^check this
-        " FIXME (create full 'ls' command)
-        execute 'ls ' .s:install_location
-    endif
+    " Use globpath() and set return output as a list
 endfunction
 
 " Clean unused plugins
