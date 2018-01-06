@@ -142,10 +142,12 @@ function! vivid#install(...) abort
             let l:cmd = 'git clone --recurse-submodules ' . 
                         \ l:data['remote'] . ' ' . l:install_path
             let l:output = system(l:cmd)
-            if l:output =~# '\m\C^Cloning into ' || l:output =~# ''
-                echomsg l:echo_message 'Installed:' l:plugin
-            else
+            if l:output =~# '\m\Cwarning:' || l:output =~# 'fatal:'
+                echohl ErrorMsg
                 echomsg l:echo_message 'Failed:   ' l:plugin
+                echohl None
+            else
+                echomsg l:echo_message 'Installed:' l:plugin
             endif
         else
             echomsg l:echo_message     'Skipped:  ' l:plugin
@@ -171,7 +173,9 @@ function! vivid#update(...) abort
             if l:output[0] =~# '\m\C^From$'
                 echomsg l:echo_message 'Updated:  ' l:plugin
             else
+                echohl WarningMsg
                 echomsg l:echo_message 'Failed:   ' l:plugin
+                echohl None
             endif
         endif
     endfor
