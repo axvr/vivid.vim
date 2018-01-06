@@ -47,7 +47,7 @@ Leave 3 lines between previous change log item -->
 
 ---
 
-## [1.0.0] - 2017-10-XX
+## [1.0.0] - 2017-XX-XX
 
 ### Added
 * [#5] Install plugins
@@ -60,7 +60,8 @@ Leave 3 lines between previous change log item -->
 * Auto-enable plugins
 * Set plugin names
 * Plugin name completion for commands
-* Set plugin install location using `packpath` (will be improved in the future)
+* Set plugin install location using `packpath`
+* Add support for plugins using submodules
 
 
 

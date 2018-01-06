@@ -3,12 +3,10 @@
 **Vivid is a Vim plugin management solution; designed to work with, not against
 Vim.**
 
-<table>
-<tr>
-<th>Latest Version:</th>
-<td><a href="https://github.com/axvr/Vivid.vim/releases">v1.0.0-alpha.1</a></td>
-</tr>
-</table>
+<!-- Badges made using https://shields.io/ -->
+[![Version Badge](https://img.shields.io/badge/Version-v1.0.0--alpha.1-brightgreen.svg)](https://github.com/axvr/Vivid.vim/releases)
+[![Licence Badge](https://img.shields.io/badge/Licence-MIT-blue.svg)](https://github.com/axvr/Vivid.vim/blob/master/LICENCE)
+
 
 [Vivid] is designed to allow [Vim] power users to fine tune exactly when their
 plugins are loaded into Vim. By default all plugins are disabled; the user can
@@ -32,6 +30,7 @@ designed to be fast, minimal & efficient.
 * Check if a plugin is enabled
 * Auto generate [help tags] for each plugins
 * Change the directory plugins are installed to
+* Basic plugin cleaning functionality (will be improved)
 
 Planned features:
 
