@@ -12,7 +12,7 @@
 
 " Prevent Vivid being loaded multiple times (and users can check if enabled)
 if exists('g:loaded_vivid') || !has('packages') || &cp | finish | endif
-let g:loaded_vivid = 1
+lockvar let g:loaded_vivid = 1
 
 " New central plugin store (dictionary contains a sub-dictionary)
 let s:plugins = { 'Vivid.vim': {
@@ -66,16 +66,12 @@ function! vivid#add(remote, ...) abort
     " Create empty dictionary to be added to s:plugins
     let l:new_plugin = {}
 
-    " Check the remote addresses are valid (mostly, can't check everything)
-    " TODO add more sources
-    if a:remote =~? '\m\C^https:\/\/.\+' || a:remote =~? '\m\C^http:\/\/.\+'
-        let l:new_plugin['remote'] = a:remote
-    elseif a:remote =~? '\m\C^.\+\/.\+'
-        let l:new_plugin['remote'] = 'https://git::@github.com/' .
-                    \ a:remote . '.git'
+    " Create the remote address, if the shortened variant was provided
+    " TODO add condition to prevent empty remote addresses being given
+    if a:remote =~# '\m\C^[-A-Za-z0-9]\+\/[-._A-Za-z0-9]\+$'
+        let l:new_plugin['remote'] = 'https://git::@github.com/' . a:remote
     else
-        echomsg 'Vivid: Remote address creation fail:' a:remote
-        return
+        let l:new_plugin['remote'] = a:remote
     endif
 
     " Validate arguments given
@@ -85,6 +81,7 @@ function! vivid#add(remote, ...) abort
     endif
 
     " Generate the required local path if none were given
+    " TODO optimise this
     if l:validate == 1 && has_key(a:1, 'name')
         let l:name = a:1['name']
     else
