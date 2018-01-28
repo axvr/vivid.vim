@@ -7,7 +7,6 @@
 " ==============================================================================
 
 " TODO allow full install paths to be specified
-" TODO allow different branches to be tracked
 
 " Prevent Vivid being loaded multiple times (and users can check if enabled)
 if exists('g:loaded_vivid') || !has('packages') || &cp | finish | endif
@@ -16,8 +15,11 @@ let g:loaded_vivid = 1 | lockvar g:loaded_vivid
 " New central plugin store (dictionary contains a sub-dictionary)
 let s:plugins = { 'Vivid.vim': {
             \ 'remote': 'https://git::@github.com/axvr/Vivid.vim.git',
-            \ 'enabled': 1,
+            \ 'enabled': 1, 'depth': 1,
             \ }, }
+let s:plugin_template = { 'enabled': 0, 'depth': 1, 'location': '',
+            \ 'name': '', 'remote': '', }
+lockvar s:plugin_template
 
 " TODO Print more information to the user about updates, etc.
 if !exists('g:vivid#verbose') | let g:vivid#verbose = 0 | endif
@@ -60,8 +62,11 @@ call s:gen_helptags(expand(s:install_location . '/Vivid.vim/doc/'))
 " Arguments: 'remote', { 'path': 'string', 'enabled': boolean }
 function! vivid#add(remote, ...) abort
 
-    " Create empty dictionary to be added to s:plugins
-    let l:new_plugin = {}
+    " Create dictionary to be added to s:plugins
+    let l:new_plugin = deepcopy(s:plugin_template)
+    if !empty(a:000) && type(a:1) == v:t_dict
+        call extend(l:new_plugin, a:1, 'force')
+    endif
 
     " Create the remote address, if the shortened variant was provided
     if a:remote =~# '\m\C^[-A-Za-z0-9]\+\/[-._A-Za-z0-9]\+$'
@@ -72,38 +77,24 @@ function! vivid#add(remote, ...) abort
         let l:new_plugin['remote'] = a:remote
     endif
 
-    " Validate arguments given
-    if !empty(a:000) && type(a:1) == v:t_dict
-        let l:validate = 1
-    else | let l:validate = 0
-    endif
-
     " Generate the required local path if none were given
-    if l:validate == 1 && has_key(a:1, 'name')
-        let l:name = a:1['name']
-    else
+    let l:name = l:new_plugin['name']
+    if l:name ==# ''
         let l:name = split(l:new_plugin['remote'], '/')
         let l:name = substitute(l:name[-1], '\m\C\.git$', '', '')
     endif
 
-    " Merge the given dictionary to the calculated dictionary
-    if l:validate == 1
-        call extend(l:new_plugin, a:1)
-    endif
-    " Ensure 'enabled' is set to 0 so it can be enabled with low complexity
-    let l:new_plugin['enabled'] = 0
-
-    " Add the new plugin to the plugin dictionary
+    " Add the new plugin to the plugins dictionary
     if !has_key(s:plugins, l:name)
         let s:plugins[l:name] = l:new_plugin
     endif
 
     " Enable plugin (if auto-enable was selected)
-    if l:validate == 1 && has_key(a:1, 'enabled') && a:1['enabled'] == 1
+    if l:new_plugin['enabled'] == 1
+        let s:plugins[l:name]['enabled'] = 0
         call vivid#enable(l:name)
     endif
 
-    return
 endfunction  " }}}
 
 " Allows the user to check if a plugin is enabled or not
@@ -140,16 +131,13 @@ function! vivid#install(...) abort
         if !isdirectory(l:install_path)
             let l:cmd = 'git clone --recurse-submodules "' .
                         \ l:data['remote'] . '" "' . l:install_path . '"'
-            let l:output = system(l:cmd)
-            if l:output =~# '\m\Cwarning:' || l:output =~# 'fatal:'
+            if system(l:cmd) =~# '\m\C\(warning\|fatal\):'
                 echohl ErrorMsg
                 echomsg l:echo_message 'Failed:   ' l:plugin
                 echohl None
             else
                 echomsg l:echo_message 'Installed:' l:plugin
             endif
-        else
-            echomsg l:echo_message     'Skipped:  ' l:plugin
         endif
     endfor
 endfunction
@@ -165,18 +153,16 @@ function! vivid#update(...) abort
                     \ '" pull --recurse-submodules'
         let l:output = system(l:cmd)
 
-        if l:output =~# '\m\CAlready up-to-date\.' ||
-                    \ l:output =~# '\m\CAlready up to date\.'
+        if !isdirectory(l:plugin_location)
+            echomsg l:echo_message     'Skipped:  ' l:plugin
+        elseif l:output =~# '\m\CAlready up[- ]to[- ]date\.'
             echomsg l:echo_message     'Latest:   ' l:plugin
+        elseif l:output =~# '\m\C^From'
+            echomsg l:echo_message 'Updated:  ' l:plugin
         else
-            let l:output = split(l:output)
-            if l:output[0] =~# '\m\C^From$'
-                echomsg l:echo_message 'Updated:  ' l:plugin
-            else
-                echohl WarningMsg
-                echomsg l:echo_message 'Failed:   ' l:plugin
-                echohl None
-            endif
+            echohl ErrorMsg
+            echomsg l:echo_message 'Failed:   ' l:plugin
+            echohl None
         endif
     endfor
 endfunction
