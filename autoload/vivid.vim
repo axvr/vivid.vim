@@ -6,29 +6,25 @@
 " Licence:      MIT Licence
 " ==============================================================================
 
-" TODO allow full install paths to be specified
-
 " Prevent Vivid being loaded multiple times (and users can check if enabled)
 if exists('g:loaded_vivid') || !has('packages') || &cp | finish | endif
 let g:loaded_vivid = 1 | lockvar g:loaded_vivid
 
 " New central plugin store (dictionary contains a sub-dictionary)
+" TODO add Vivid using vivid#add()
 let s:plugins = { 'Vivid.vim': {
             \ 'remote': 'https://git::@github.com/axvr/Vivid.vim.git',
             \ 'enabled': 1, 'depth': 1,
             \ }, }
-let s:plugin_template = { 'enabled': 0, 'depth': 1, 'location': '',
+let s:plugin_defaults = { 'enabled': 0, 'depth': 1, 'location': '',
             \ 'name': '', 'remote': '', }
-lockvar s:plugin_template
-
-" TODO Print more information to the user about updates, etc.
-if !exists('g:vivid#verbose') | let g:vivid#verbose = 0 | endif
+lockvar s:plugin_defaults
 
 " Find Vivid install location (fast if nothing has been added to the 'rtp' yet)
 let s:where_am_i = split(&runtimepath, ',')
 for s:path in s:where_am_i
     if s:path =~# '.Vivid\.vim$'
-        let s:install_location = substitute(s:path, '.Vivid\.vim', '', '')
+        let s:install_location = substitute(s:path, '\m\C.Vivid\.vim$', '', '')
         unlet s:path s:where_am_i
         break
     endif
@@ -63,7 +59,7 @@ call s:gen_helptags(expand(s:install_location . '/Vivid.vim/doc/'))
 function! vivid#add(remote, ...) abort
 
     " Create dictionary to be added to s:plugins
-    let l:new_plugin = deepcopy(s:plugin_template)
+    let l:new_plugin = deepcopy(s:plugin_defaults)
     if !empty(a:000) && type(a:1) == v:t_dict
         call extend(l:new_plugin, a:1, 'force')
     endif
@@ -100,10 +96,7 @@ endfunction  " }}}
 " Allows the user to check if a plugin is enabled or not
 " return values:  1 == enabled, 0 == disabled or not managed by Vivid
 function! vivid#enabled(plugin_name) abort
-    if has_key(s:plugins, a:plugin_name)
-        return s:plugins[a:plugin_name]['enabled']
-    else | return 0
-    endif
+    return get(s:plugins, a:plugin_name, 0)['enabled']
 endfunction
 
 " Usage: let l:var = s:pick_a_dictionary(a:000)
@@ -181,7 +174,6 @@ function! vivid#enable(...) abort
             call s:gen_helptags(l:doc)
         endif
     endfor
-    return
 endfunction
 
 " TODO Create a list of all dirs
