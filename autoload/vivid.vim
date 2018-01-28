@@ -176,21 +176,33 @@ function! vivid#enable(...) abort
     endfor
 endfunction
 
-" TODO Create a list of all dirs
+" Create a list of all dirs to delete
 function! s:list_all_files(...) abort
-    " Use globpath() and set return output as a list
+    " TODO create and use a comma separated list of paths
+    let l:dir_list = globpath(s:install_location, '*', 0, 1)
+    for l:dir in l:dir_list
+        let l:name = split(l:dir, '/')
+        let l:name = substitute(l:name[-1], '\m\C\.git$', '', '')
+        if has_key(s:plugins, l:name)
+            call remove(l:dir_list, index(l:dir_list, l:dir))
+        endif
+    endfor
+    return l:dir_list
 endfunction
 
 " Clean unused plugins
+" TODO improve the plugin cleaning system
 function! vivid#clean(...) abort
     if empty(a:000) || a:000 == [[]]
-        " TODO Find dirs which are not managed plugins and remove them
-        echomsg 'This feature has not been implemented yet'
+        for l:file in s:list_all_files()
+            call delete(expand(l:file), 'rf')
+            echomsg 'Vivid: Plugin clean   - Deleted:  ' l:file
+        endfor
     else
         let l:dict = s:pick_a_dictionary(a:000)
         for l:plugin in keys({l:dict})
-            call delete(expand(s:install_location . '/' . l:plugin), 'rf')
             let s:plugins[l:plugin]['enabled'] = 0
+            call delete(expand(s:install_location . '/' . l:plugin), 'rf')
             echomsg 'Vivid: Plugin clean   - Deleted:  ' l:plugin
         endfor
     endif
