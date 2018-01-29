@@ -14,18 +14,17 @@ let g:loaded_vivid = 1 | lockvar g:loaded_vivid
 " TODO add Vivid using vivid#add()
 let s:plugins = { 'Vivid.vim': {
             \ 'remote': 'https://git::@github.com/axvr/Vivid.vim.git',
-            \ 'enabled': 1, 'depth': 1,
+            \ 'enabled': 1, 'depth': 1, 'location': '',
             \ }, }
-let s:plugin_defaults = { 'enabled': 0, 'depth': 1, 'location': '',
-            \ 'name': '', 'remote': '', }
+let s:plugin_defaults = { 'enabled': 0, 'depth': 1, 'location': '', 'name': '' }
 lockvar s:plugin_defaults
 
 " Find Vivid install location (fast if nothing has been added to the 'rtp' yet)
-let s:where_am_i = split(&runtimepath, ',')
-for s:path in s:where_am_i
+for s:path in split(&runtimepath, ',')
     if s:path =~# '.Vivid\.vim$'
         let s:install_location = substitute(s:path, '\m\C.Vivid\.vim$', '', '')
-        unlet s:path s:where_am_i
+        lockvar s:install_location
+        unlet s:path
         break
     endif
 endfor
@@ -59,7 +58,7 @@ call s:gen_helptags(expand(s:install_location . '/Vivid.vim/doc/'))
 function! vivid#add(remote, ...) abort
 
     " Create dictionary to be added to s:plugins
-    let l:new_plugin = deepcopy(s:plugin_defaults)
+    let l:new_plugin = copy(s:plugin_defaults)
     if !empty(a:000) && type(a:1) == v:t_dict
         call extend(l:new_plugin, a:1, 'force')
     endif
