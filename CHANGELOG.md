@@ -54,6 +54,7 @@ Leave 3 lines between previous change log item -->
 * [#2] Enable plugins
 * [#3] Update plugins
 * [#4] Add plugins
+* [#1] Clean out unused plugins
 * [#17] Check if plugins are enabled
 * [#19] Commands and functions to control Vivid
 * [#9] Generate help tags
@@ -61,7 +62,7 @@ Leave 3 lines between previous change log item -->
 * Set plugin names
 * Plugin name completion for commands
 * Set plugin install location using `packpath`
-* Add support for plugins which use git submodules
+* [#28] Add support for plugins which use git submodules
 
 
 
@@ -73,6 +74,7 @@ Leave 3 lines between previous change log item -->
 
 <!-- Issue & Pull Request Links -->
 
+[#1]:https://github.com/axvr/Vivid.vim/issues/1
 [#2]:https://github.com/axvr/Vivid.vim/issues/2
 [#3]:https://github.com/axvr/Vivid.vim/issues/3
 [#4]:https://github.com/axvr/Vivid.vim/issues/4
@@ -80,6 +82,7 @@ Leave 3 lines between previous change log item -->
 [#9]:https://github.com/axvr/Vivid.vim/issues/9
 [#17]:https://github.com/axvr/Vivid.vim/issues/17
 [#19]:https://github.com/axvr/Vivid.vim/issues/19
+[#29]:https://github.com/axvr/Vivid.vim/issues/29
 
 <!-- Other Links -->
 
