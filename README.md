@@ -36,7 +36,9 @@ tiny size.
 
 ## Quick Start
 
-See the [Vivid wiki] for more information, examples and the [FAQ].
+See the [Vivid wiki] for more information, examples and the [FAQ]. For
+convenience the titles of each section below contain links to the relevant wiki
+sections.
 
 ### [Dependencies](https://github.com/axvr/Vivid.vim/wiki/Installing-Vivid#what-dependencies-does-vivid-require)
 
@@ -74,6 +76,7 @@ discouraged.
 on any plugin that is being managed. The exception is the `packadd Vivid.vim`
 before any plugin config.
 
+
 #### [Adding Plugins]
 
 To add plugins for Vivid to manage, use the `Plugin` command (or `vivid#add`
@@ -92,10 +95,11 @@ Plugin 'tpope/vim-fugitive', { 'enabled': 1 }   " Add and enable plugin by defau
 
 #### [Installing Plugins](https://github.com/axvr/Vivid.vim/wiki/Managing-Plugins#installing-plugins)
 
-Vivid follows the "Do what I mean" approach (similar to
-[Perl](https://www.perl.org)). This means that when you enable a plugin, Vivid
-assumes that you want that plugin enabled, despite whether it is installed or
-not. So Vivid will install the plugin automatically then enable it.
+Vivid follows the "[Do What I Mean](https://en.wikipedia.org/wiki/DWIM)"
+approach (like [Perl](https://www.perl.org) does). This means that when you
+enable a plugin, Vivid assumes that you want that plugin enabled, despite
+whether it has actually been installed. So when a plugin is enabled, Vivid will
+automatically install (if it hasn't already), then it will enable it.
 
 The install of plugins can also be done manually through the use of the
 `PluginInstall` command (or `vivid#install` function).
@@ -125,80 +129,67 @@ command (or the `vivid#update` function).
 
 #### [Enabling Plugins]
 
-The biggest feature of Vivid is the "lazy loading" controls it provides, which
-surprisingly is not that many.
+Obviously Vivid (with its lazy loading defaults), would have to provide a way
+for the user to enable their plugins. A simple interface is provided for this,
+as the `PluginEnable` command (and `vivid#enable` function).
 
-As you may already know, by default Vivid loads no plugins, and encourages the
-user to write their own custom rules for when plugins should be enabled. Vivid
-provides a simple command and function which can be used to create these rules.
-
-The command:
+For additional information on enabling plugins (and extra examples), check out
+the "[Enabling Plugins]" section of the [Vivid wiki].
 
 ```vim
 " Enable specified plugins: vim-fugitive and committia
 :PluginEnable vim-fugitive committia.vim
 
-" Enable all plugins (Vundle like behaviour)
+" Enable all plugins (Not recommended)
 :PluginEnable
 ```
 
-The function:
+This is an example of a possible use case, taken from the [author's own Vim
+config](https://github.com/axvr/dotfiles):
 
 ```vim
-" Enable specified plugins: vim-fugitive and committia
-:call vivid#enable('vim-fugitive', 'committia.vim')
-
-" Enable all plugins (Vundle like behaviour)
-:call vivid#enable()
-```
-
-This is an example of a possible use case in a vimrc:
-
-```vim
-augroup clang
-    autocmd!
-    " Automatically enable clang specific plugins when in a clang file
-    autocmd FileType c,h,cpp,hpp,cc,objc call vivid#enable('vim-clang-format', 'vim-cpp-enhanced-highlight')
-augroup END
+autocmd FileType typescript call vivid#enable('typescript-vim', 'tsuquyomi')
+autocmd BufRead,BufNewFile *.ts setlocal filetype=typescript
 ```
 
 
-#### Check Plugin Status
+#### [Check Plugin Status](https://github.com/axvr/Vivid.vim/wiki/Managing-Plugins#checking-plugin-status)
 
-Vivid allows you to write complex scripts in your `$MYVIMRC`, one of the
-features it provides is checking whether a plugin is enabled or not. The simple
-feature opens many possibilities, such as commands are mapped when the plugin is
-enabled, or a different config and plugins in Neovim than in Vim when using the
-same configuration file.
+Sometimes it is useful to check whether a plugin has been enabled, but the
+problem is that not every plugin sets a `g:loaded_plugin_name` variable. Because
+of this Vivid provides a simple function to query the status of a plugin.
 
-This is a much needed feature as not all plugins set the `g:loaded_plugin_name`
-variable.
+The function is `vivid#enabled`, and it takes only one argument, the name of the
+plugin to check the status of. The function returns a boolean result. `0`:
+Disabled or not being managed, and `1`: Enabled.
 
-The function is `vivid#enabled('plugin-name-here')`, and it takes only one
-argument, the name of the plugin to check the status of.
-
-Outputs from this function are as follows:
-* `0` : Disabled or not added for Vivid to manage
-* `1` : Enabled
-
-Example of plugin status checking in a vimrc
+Example of a possible instance of plugin status checking in a Vim configration:
 
 ```vim
-" Add Git branch to Vim statusline if vim-fugitive is on and
-" is in a git controlled repo to avoid any errors
-function! GitBranch() abort
+" Add Git branch to Vim statusline if vim-fugitive is enabled
+function! GitBranch()
     if vivid#enabled('vim-fugitive') && fugitive#head() != ''
         return '  ' . fugitive#head() . ' '
     else | return ''
     endif
 endfunction
-set statusline=%#LineNr#%{GitBranch()}   " Git branch name
+set statusline=%{GitBranch()}
 ```
 
 
-#### Clean Plugins
+#### [Clean Plugins](https://github.com/axvr/Vivid.vim/wiki/Managing-Plugins#cleaning-plugins)
 
-*This feature is currently a work in progress*
+By making use of the `PluginClean` command (or `vivid#clean` function), it is
+possible to remove in use plugins and remove all of the unused plugins. from the
+plugin directory on yor system.
+
+```vim
+" Remove all unmanaged plugins
+:PluginClean
+
+" Delete specific managed plugins
+:PluginClean vim-fugitive committia.vim
+```
 
 
 <!-- Links -->
