@@ -7,22 +7,24 @@ Vim.**
 [![Version Badge](https://img.shields.io/badge/Version-v1.0.0--alpha.3-brightgreen.svg)](https://github.com/axvr/Vivid.vim/releases)
 [![Licence Badge](https://img.shields.io/badge/Licence-MIT-blue.svg)](https://github.com/axvr/Vivid.vim/blob/master/LICENCE)
 
-## About
 
-Vivid is a plugin manager built to be minimal, fast and efficient. Vivid is
-designed to allow Vim users to fine tune exactly when their plugins are loaded
-into Vim. The user is encouraged to use the tools provided by Vivid to define
-custom rules for managing their plugins, whilst keeping the process as simple as
-possible.
+## About Vivid
 
-Designed to be extensible, additional plugins can be added to change the default
-behaviour of Vivid, or add additional features and tools (**WIP**).
+**Vivid is a plugin manager** built to be **minimal, fast and efficient**. Vivid
+is designed to allow Vim users to fine tune exactly when their plugins are
+loaded into Vim. The user is encouraged to use the tools provided by Vivid to
+define custom rules for managing their plugins, whilst keeping the process as
+simple as possible.
 
-Vivid can be integrated into other plugins, through the "*Vivid Layer
+**Designed to be extensible**, additional plugins can be added to change the
+default behaviour of Vivid, or add additional features and tools (**WIP**).
+
+**Vivid can be integrated into other plugins**, through the "*Vivid Layer
 Framework*" (**WIP**). This allows the creation of more powerful and faster
-plugins, with much simpler implementation. The *VLF* allows plugins to manage
-other plugins. This is all possible with very little overhead because of its
-sheer speed, and tiny size.
+plugins, with much simpler implementation. The *VLF* essentially allows plugins
+to manage other plugins, independent of what plugin manager the user chose to
+use. This is possible with very little overhead because of its sheer speed, and
+tiny size.
 
 
 ---
@@ -34,15 +36,16 @@ sheer speed, and tiny size.
 
 ## Quick Start
 
-See the [Vivid wiki] for more information, examples and a [FAQ].
+See the [Vivid wiki] for more information, examples and the [FAQ].
 
 ### [Dependencies](https://github.com/axvr/Vivid.vim/wiki/Installing-Vivid#what-dependencies-does-vivid-require)
 
-[Vivid] requires that the [Git] VCS is installed on your system, including [Vim]
-(8.0+) or [Neovim].
+Vivid requires that the [Git] VCS is installed on your system, and [Vim]
+\(8.0+\) or [Neovim].
 
-**NOTE:** Vivid only works with Git managed plugins. If you must have support
-for other VCSs and archives create an extension to add these features to Vivid.
+**NOTE**: Vivid only works with Git managed plugins. If you must have support
+for other VCSs and archives feel free to create an extension to add these
+features to Vivid.
 
 
 ### [Install Vivid]
@@ -54,7 +57,10 @@ git clone https://github.com/axvr/Vivid.vim ~/.vim/pack/vivid/opt/Vivid.vim
 ```
 
 Then to enable Vivid place `packadd Vivid.vim` in your Vim config (before any
-plugin definitions) No other boilerplate code is required.
+plugin definitions). It's that easy no other boilerplate code is required.
+
+**NOTE**: For Microsoft Windows you may have to modify the `packpath` option so
+that Vim can find Vivid. See `:h 'packpath'`.
 
 
 ### [Using Vivid]
@@ -245,8 +251,6 @@ set statusline=%#LineNr#%{GitBranch()}   " Git branch name
 [Git]:http://git-scm.com
 [Vim]:http://www.vim.org
 [Neovim]:https://neovim.io
-[runtime path]:http://vimdoc.sourceforge.net/htmldoc/options.html#%27runtimepath%27
-[help tags]:http://vimdoc.sourceforge.net/htmldoc/helphelp.html#:helptags
 [Vivid wiki]:https://github.com/axvr/Vivid.vim/wiki
 [Dependencies]:https://github.com/axvr/Vivid.vim/wiki/Installing-Vivid#what-dependencies-does-vivid-require
 [Install Vivid]:https://github.com/axvr/Vivid.vim/wiki/Installing-Vivid#how-do-i-install-vivid
@@ -255,9 +259,4 @@ set statusline=%#LineNr#%{GitBranch()}   " Git branch name
 [Vivid's origins]:https://github.com/axvr/Vivid-Legacy.vim
 [Vundle]:https://github.com/VundleVim/Vundle.vim
 [here for info on automatic plugin naming]:https://github.com/axvr/Vivid.vim/wiki/Managing-Plugins#plugin-naming
-
-<!-- Add to wiki -->
-<!-- Sometimes a plugin may break, sometimes due user modding of code or a
-broken Git history. To fix this problem see the plugin cleaning section of this
-document. -->
 
