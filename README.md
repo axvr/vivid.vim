@@ -36,9 +36,9 @@ tiny size.
 
 ## Quick Start
 
-See the [Vivid wiki] for more information, examples and the [FAQ]. For
-convenience the titles of each section below contain links to the relevant wiki
-sections.
+See the [Vivid wiki] for more information, examples and the
+[FAQ](https://github.com/axvr/Vivid.vim/wiki/FAQ). For convenience the titles of
+each section below contain links to the relevant wiki sections.
 
 ### [Dependencies](https://github.com/axvr/Vivid.vim/wiki/Installing-Vivid#what-dependencies-does-vivid-require)
 
@@ -199,7 +199,4 @@ plugin directory on yor system.
 [Using Vivid]:https://github.com/axvr/Vivid.vim/wiki/Managing-Plugins
 [Adding Plugins]:https://github.com/axvr/Vivid.vim/wiki/Managing-Plugins#adding-plugins-to-manage
 [Enabling Plugins]:https://github.com/axvr/Vivid.vim/wiki/Managing-Plugins#enabling-plugins
-[FAQ]:https://github.com/axvr/Vivid.vim/wiki/FAQ
-[Vivid's origins]:https://github.com/axvr/Vivid-Legacy.vim
-[Vundle]:https://github.com/VundleVim/Vundle.vim
 
