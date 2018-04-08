@@ -7,35 +7,22 @@ Vim.**
 [![Version Badge](https://img.shields.io/badge/Version-v1.0.0--alpha.3-brightgreen.svg)](https://github.com/axvr/Vivid.vim/releases)
 [![Licence Badge](https://img.shields.io/badge/Licence-MIT-blue.svg)](https://github.com/axvr/Vivid.vim/blob/master/LICENCE)
 
-
-[Vivid] is designed to allow [Vim] power users to fine tune exactly when their
-plugins are loaded into Vim. By default all plugins are disabled; the user can
-create their own conditions and rules to enable the plugins directly from their
-`$MYVIMRC` file.
-
-
 ## About
 
-[Vivid] aims to give control to [Vim] user's plugin management, allowing users
-to manage as much or as little of their plugins as they wish. Vivid is also
-designed to be fast, minimal & efficient.
+Vivid is a plugin manager built to be minimal, fast and efficient. Vivid is
+designed to allow Vim users to fine tune exactly when their plugins are loaded
+into Vim. The user is encouraged to use the tools provided by Vivid to define
+custom rules for managing their plugins, whilst keeping the process as simple as
+possible.
 
+Designed to be extensible, additional plugins can be added to change the default
+behaviour of Vivid, or add additional features and tools (**WIP**).
 
-[Vivid] allows you to:
-
-* Install plugins
-* Update plugins
-* Enable plugins
-* Auto-enable plugins
-* Check if a plugin is enabled
-* Auto generate [help tags] for each plugins
-* Remove unused plugins
-
-Planned features:
-
-* Change the directory plugins are installed to
-* Async update and install of plugins
-* Vim help doc (similar to the [Vivid wiki])
+Vivid can be integrated into other plugins, through the "*Vivid Layer
+Framework*" (**WIP**). This allows the creation of more powerful and faster
+plugins, with much simpler implementation. The *VLF* allows plugins to manage
+other plugins. This is all possible with very little overhead because of its
+sheer speed, and tiny size.
 
 
 ---
@@ -54,25 +41,20 @@ See the [Vivid wiki] for more information, examples and a [FAQ].
 [Vivid] requires that the [Git] VCS is installed on your system, including [Vim]
 (8.0+) or [Neovim].
 
-**NOTE:** Vivid only works with Git managed plugins.
+**NOTE:** Vivid only works with Git managed plugins. If you must have support
+for other VCSs and archives create an extension to add these features to Vivid.
 
 
 ### [Install Vivid]
 
 To install Vivid on Vim run this command in a terminal emulator:
 
-```bash
+```sh
 git clone https://github.com/axvr/Vivid.vim ~/.vim/pack/vivid/opt/Vivid.vim
 ```
 
-Alternatively, you can install Vivid for Neovim by running this command:
-
-```bash
-git clone https://github.com/axvr/Vivid.vim ~/.config/nvim/pack/vivid/opt/Vivid.vim
-```
-
-Then to enable Vivid place `packadd Vivid.vim` at the top of your `$MYVIMRC`
-file. No other boilerplate code is required in your Vim config.
+Then to enable Vivid place `packadd Vivid.vim` in your Vim config (before any
+plugin definitions) No other boilerplate code is required.
 
 
 ### [Using Vivid]
