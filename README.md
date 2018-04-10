@@ -153,7 +153,7 @@ autocmd BufRead,BufNewFile *.ts setlocal filetype=typescript
 ```
 
 
-#### [Check Plugin Status](https://github.com/axvr/Vivid.vim/wiki/Managing-Plugins#checking-plugin-status)
+#### [Check Plugin Status](https://github.com/axvr/Vivid.vim/wiki/Managing-Plugins#check-plugin-status)
 
 Sometimes it is useful to check whether a plugin has been enabled, but the
 problem is that not every plugin sets a `g:loaded_plugin_name` variable. Because
@@ -177,7 +177,7 @@ set statusline=%{GitBranch()}
 ```
 
 
-#### [Clean Plugins](https://github.com/axvr/Vivid.vim/wiki/Managing-Plugins#cleaning-plugins)
+#### [Cleaning Plugins](https://github.com/axvr/Vivid.vim/wiki/Managing-Plugins#cleaning-plugins)
 
 By making use of the `PluginClean` command (or `vivid#clean` function), it is
 possible to remove in use plugins and remove all of the unused plugins. from the
@@ -197,6 +197,6 @@ plugin directory on yor system.
 [Vim]:https://www.vim.org
 [Vivid wiki]:https://github.com/axvr/Vivid.vim/wiki
 [Using Vivid]:https://github.com/axvr/Vivid.vim/wiki/Managing-Plugins
-[Adding Plugins]:https://github.com/axvr/Vivid.vim/wiki/Managing-Plugins#adding-plugins-to-manage
+[Adding Plugins]:https://github.com/axvr/Vivid.vim/wiki/Managing-Plugins#adding-plugins
 [Enabling Plugins]:https://github.com/axvr/Vivid.vim/wiki/Managing-Plugins#enabling-plugins
 

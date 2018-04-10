@@ -1,0 +1,31 @@
+*vivid.txt*	For Vim version 8.0	Last change: 2018 April 10
+
+
+		Vivid.vim Manual    by Alex Vear~
+
+
+Welcome to the Vivid user and developer manual		*vivid.vim*
+
+1. What is Vivid?	|vivid-what-is|
+2. Requirements		|vivid-requirements|
+3. How to use Vivid	|vivid-how-to|
+
+==============================================================================
+1. What is Vivid?					*vivid-what-is*
+
+[place-holder]
+
+==============================================================================
+2. Requirements						*vivid-requirements*
+
+* Vim 8.0.0050 or greater, and compiled with the `+packages` feature.
+* Git v1.9 or higher.
+* Any OS supported by Vim that can run shell commands (|sys-file-list|, |:!cmd|).
+
+==============================================================================
+3. How to use Vivid					*vivid-how-to*
+
+
+For help with writing/editing this file see |help-writing|.
+
+vim:noet:ts=8:sts=8:sw=8:tw=78:ft=help:
