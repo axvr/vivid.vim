@@ -5,7 +5,7 @@
 " Licence:      MIT Licence
 " ==============================================================================
 
-" Don't overwrite already set commands
+" Avoid overwriting already set commands
 try
     command -nargs=+ -bar Plugin call vivid#add(<args>)
     command -nargs=* -bar -complete=customlist,vivid#complete PluginInstall
@@ -19,4 +19,4 @@ try
 catch /^Vim\%((\a\+)\)\=:E174/
 endtry
 
-" vim: set ts=4 sw=4 tw=80 et ft=vim fdm=marker fmr={{{,}}} :
+" vim: set et ts=4 sts=4 sw=4 tw=80 ft=vim ff=unix fenc=utf-8 :

@@ -1,4 +1,4 @@
-*vivid.txt*	For Vim version 8.0	Last change: 2018 April 10
+*vivid.txt*	For Vim version 8.0	Last change: 2018 April 11
 
 
 		Vivid.vim Manual    by Alex Vear~
@@ -13,18 +13,33 @@ Welcome to the Vivid user and developer manual		*vivid.vim*
 ==============================================================================
 1. What is Vivid?					*vivid-what-is*
 
-[place-holder]
+Vivid is a Vim plugin manager built to be minimal, fast and efficient. Vivid
+is designed to allow Vim users to fine tune exactly when their plugins are
+loaded into Vim. The user is encouraged to use the tools provided by Vivid to
+define custom rules for managing their plugins, whilst keeping the process as
+simple as possible.
+
+Designed to be extensible, additional plugins can be added to change the
+default behaviour of Vivid, or add additional features and tools (WIP).
+
+Vivid can be integrated into other plugins, through the "Vivid Layer
+Framework" (WIP). This allows the creation of more powerful and faster
+plugins, with much simpler implementation. The VLF essentially allows plugins
+to manage other plugins, independent of what plugin manager the user chose to
+use. This is possible with very little overhead because of its sheer speed,
+and tiny size.
 
 ==============================================================================
 2. Requirements						*vivid-requirements*
 
 * Vim 8.0.0050 or greater, and compiled with the `+packages` feature.
-* Git v1.9 or higher.
+* Git v1.9 or higher (check using `:!git --version`).
 * Any OS supported by Vim that can run shell commands (|sys-file-list|, |:!cmd|).
 
 ==============================================================================
 3. How to use Vivid					*vivid-how-to*
 
+[place-holder]
 
 For help with writing/editing this file see |help-writing|.
 

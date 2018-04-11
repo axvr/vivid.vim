@@ -48,7 +48,7 @@ function! s:gen_helptags(doc_location) abort
 endfunction
 call s:gen_helptags(expand(s:install_location . '/Vivid.vim/doc/'))
 
-" Add a plugin for Vivid to manage {{{
+" Add a plugin for Vivid to manage
 " Example:
 " call vivid#add('tpope/vim-fugitive', {
 "     \ 'name': 'fugitive.vim',
@@ -90,7 +90,7 @@ function! vivid#add(remote, ...) abort
         call vivid#enable(l:name)
     endif
 
-endfunction  " }}}
+endfunction
 
 " Allows the user to check if a plugin is enabled or not
 " return values:  1 == enabled, 0 == disabled or not managed by Vivid
@@ -208,4 +208,4 @@ function! vivid#clean(...) abort
 endfunction
 
 
-" vim: set ts=4 sw=4 tw=80 et ft=vim fdm=marker fmr={{{,}}} :
+" vim: set et ts=4 sts=4 sw=4 tw=80 ft=vim ff=unix fenc=utf-8 :
