@@ -53,11 +53,17 @@ function! vivid#add(remote, ...) abort
         let l:new_plugin['remote'] = a:remote
     endif
 
-    " Generate the required local path if none were given
+    " Generate a name if none was given
     let l:name = l:new_plugin['name']
     if l:name ==# ''
         let l:name = split(l:new_plugin['remote'], '/')
         let l:name = substitute(l:name[-1], '\m\C\.git$', '', '')
+    endif
+
+    if has_key(l:new_plugin, 'command')
+        for l:cmd in l:new_plugin['command']
+            execute 'command '.l:cmd.' :call vivid#enable("'.l:name.'") | silent! '.l:cmd
+        endfor
     endif
 
     " Add the new plugin to the plugins dictionary
