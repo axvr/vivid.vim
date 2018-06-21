@@ -2,7 +2,6 @@
 " Name:         Vivid.vim
 " Author:       Alex Vear
 " HomePage:     https://github.com/axvr/Vivid.vim
-" Version:      1.0.0
 " Licence:      MIT Licence
 " ==============================================================================
 
@@ -10,13 +9,8 @@
 if exists('g:loaded_vivid') || !has('packages') || &cp | finish | endif
 let g:loaded_vivid = 1 | lockvar g:loaded_vivid
 
-" New central plugin store (dictionary contains a sub-dictionary)
-" TODO add Vivid using vivid#add()
-let s:plugins = { 'Vivid.vim': {
-            \ 'remote': 'https://git::@github.com/axvr/Vivid.vim.git',
-            \ 'enabled': 1, 'depth': 1, 'location': '',
-            \ }, }
-let s:plugin_defaults = { 'enabled': 0, 'depth': 1, 'location': '', 'name': '' }
+let s:plugins = { }
+let s:plugin_defaults = { 'enabled': 0, 'depth': 1, 'name': '' }
 lockvar s:plugin_defaults
 
 " Find Vivid install location (fast if nothing has been added to the 'rtp' yet)
@@ -29,13 +23,7 @@ for s:path in split(&runtimepath, ',')
     endif
 endfor
 
-function! s:check_system_compatibility()
-    if !executable('git')
-        throw 'Git is not installed on this system'
-    endif
-endfunction
-
-" Completion for Vivid commands  TODO significantly improve this
+" Completion for Vivid commands  TODO improve this
 function! vivid#complete(A,L,P)
     return sort(keys(s:plugins))
 endfunction
@@ -43,18 +31,11 @@ endfunction
 " Generate helptags
 function! s:gen_helptags(doc_location) abort
     if isdirectory(a:doc_location)
-        execute 'helptags ' . a:doc_location
+        execute 'helptags ' . expand(a:doc_location)
     endif
 endfunction
-call s:gen_helptags(expand(s:install_location . '/Vivid.vim/doc/'))
 
 " Add a plugin for Vivid to manage
-" Example:
-" call vivid#add('tpope/vim-fugitive', {
-"     \ 'name': 'fugitive.vim',
-"     \ 'enabled': 1,
-"     \ } )
-" Arguments: 'remote', { 'path': 'string', 'enabled': boolean }
 function! vivid#add(remote, ...) abort
 
     " Create dictionary to be added to s:plugins
@@ -93,12 +74,12 @@ function! vivid#add(remote, ...) abort
 endfunction
 
 " Allows the user to check if a plugin is enabled or not
-" return values:  1 == enabled, 0 == disabled or not managed by Vivid
+" Returns:  1 == enabled, 0 == disabled or not managed by Vivid
 function! vivid#enabled(plugin_name) abort
     return get(s:plugins, a:plugin_name, 0)['enabled']
 endfunction
 
-" Usage: let l:var = s:pick_a_dictionary(a:000)
+" Usage: let l:var = <SID>pick_a_dictionary(a:000)
 function! s:pick_a_dictionary(...) abort
     if empty(a:000) || a:000 == [[]]
         return 's:plugins'
@@ -115,8 +96,7 @@ endfunction
 
 " Install plugins
 function! vivid#install(...) abort
-    call s:check_system_compatibility()
-    let l:dict = s:pick_a_dictionary(a:000)
+    let l:dict = <SID>pick_a_dictionary(a:000)
     for [l:plugin, l:data] in items({l:dict})
         let l:echo_message = 'Vivid: Plugin install -'
         let l:install_path = expand(s:install_location . '/' . l:plugin)
@@ -136,8 +116,7 @@ endfunction
 
 " Update plugins
 function! vivid#update(...) abort
-    call s:check_system_compatibility()
-    let l:dict = s:pick_a_dictionary(a:000)
+    let l:dict = <SID>pick_a_dictionary(a:000)
     for l:plugin in keys({l:dict})
         let l:echo_message = 'Vivid: Plugin update  -'
         let l:plugin_location = expand(s:install_location . '/' . l:plugin)
@@ -161,7 +140,7 @@ endfunction
 
 " Enable plugins
 function! vivid#enable(...) abort
-    let l:dict = s:pick_a_dictionary(a:000)
+    let l:dict = <SID>pick_a_dictionary(a:000)
     for l:plugin in keys({l:dict})
         if s:plugins[l:plugin]['enabled'] == 0
             if !isdirectory(s:install_location . '/' . l:plugin)
@@ -170,7 +149,7 @@ function! vivid#enable(...) abort
             let s:plugins[l:plugin]['enabled'] = 1
             silent execute 'packadd ' . l:plugin
             let l:doc = expand(s:install_location . '/' . l:plugin . '/doc/')
-            call s:gen_helptags(l:doc)
+            call <SID>gen_helptags(l:doc)
         endif
     endfor
 endfunction
@@ -193,12 +172,12 @@ endfunction
 " TODO improve the plugin cleaning system
 function! vivid#clean(...) abort
     if empty(a:000) || a:000 == [[]]
-        for l:file in s:list_all_files()
+        for l:file in <SID>list_all_files()
             call delete(expand(l:file), 'rf')
             echomsg 'Vivid: Plugin clean   - Deleted:  ' l:file
         endfor
     else
-        let l:dict = s:pick_a_dictionary(a:000)
+        let l:dict = <SID>pick_a_dictionary(a:000)
         for l:plugin in keys({l:dict})
             let s:plugins[l:plugin]['enabled'] = 0
             call delete(expand(s:install_location . '/' . l:plugin), 'rf')
@@ -207,5 +186,5 @@ function! vivid#clean(...) abort
     endif
 endfunction
 
-
+call vivid#add('axvr/Vivid.vim', { 'enabled': 1 })
 " vim: set et ts=4 sts=4 sw=4 tw=80 ft=vim ff=unix fenc=utf-8 :
