@@ -23,9 +23,9 @@ for s:path in split(&runtimepath, ',')
     endif
 endfor
 
-" Completion for Vivid commands  TODO improve this
-function! vivid#complete(A,L,P)
-    return sort(keys(s:plugins))
+" Completion for Vivid commands
+function! vivid#complete(...)
+    return sort(filter(keys(s:plugins), 'stridx(v:val, a:1) == 0'))
 endfunction
 
 " Generate helptags
