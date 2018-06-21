@@ -16,11 +16,11 @@ loaded into Vim. The user is encouraged to use the tools provided by Vivid to
 define custom rules for managing their plugins, whilst keeping the process as
 simple as possible.
 
-**Designed to be extensible**, additional plugins can be added to change the
+**Designed to be [extensible]()**, additional plugins can be added to change the
 default behaviour of Vivid, or add additional features and tools (**WIP**).
 
-**Vivid can be integrated into other plugins**, through the "*Vivid Layer
-Framework*" (**WIP**). This allows the creation of more powerful and faster
+**Vivid can be integrated into other plugins**, through the "[*Vivid Layer
+Framework*]()" (**WIP**). This allows the creation of more powerful and faster
 plugins, with much simpler implementation. The *VLF* essentially allows plugins
 to manage other plugins, independent of what plugin manager the user chose to
 use. This is possible with very little overhead because of its sheer speed, and
@@ -40,7 +40,7 @@ See the [Vivid wiki] for more information, examples and the
 [FAQ](https://github.com/axvr/Vivid.vim/wiki/FAQ). For convenience the titles of
 each section below contain links to the relevant wiki sections.
 
-### [Dependencies](https://github.com/axvr/Vivid.vim/wiki/Installing-Vivid#what-dependencies-does-vivid-require)
+### [Dependencies](https://github.com/axvr/Vivid.vim/wiki/Installing-Vivid#required-dependencies)
 
 Vivid requires that the [Git](https://git-scm.com) VCS is installed on your
 system, and [Vim] \(8.0+\) or [Neovim](https://neovim.io).
@@ -50,7 +50,7 @@ for other VCSs and archives feel free to create an extension to add these
 features to Vivid.
 
 
-### [Install Vivid](https://github.com/axvr/Vivid.vim/wiki/Installing-Vivid#how-do-i-install-vivid)
+### [Install Vivid](https://github.com/axvr/Vivid.vim/wiki/Installing-Vivid#how-to-install-vivid)
 
 To install Vivid on Vim run this command in a terminal emulator:
 
@@ -77,11 +77,13 @@ on any plugin that is being managed. The exception is the `packadd Vivid.vim`
 before any plugin config.
 
 
-#### [Adding Plugins]
+#### [Adding Plugins](https://github.com/axvr/Vivid.vim/wiki/Managing-Plugins#adding-plugins)
 
 To add plugins for Vivid to manage, use the `Plugin` command (or `vivid#add`
 function). Vivid provides options which can be set when adding plugins. For info
-on how to use these options see the "[Adding Plugins]" section of the Wiki.
+on how to use these options refer to the "[Plugin
+Options](https://github.com/axvr/Vivid.vim/wiki/Managing-Plugins#plugin-options)"
+section of the Wiki.
 
 ```vim
 packadd Vivid.vim  " Required
@@ -95,11 +97,12 @@ Plugin 'tpope/vim-fugitive', { 'enabled': 1 }   " Add and enable plugin by defau
 
 #### [Installing Plugins](https://github.com/axvr/Vivid.vim/wiki/Managing-Plugins#installing-plugins)
 
-Vivid follows the "[Do What I Mean](https://en.wikipedia.org/wiki/DWIM)"
-approach (like [Perl](https://www.perl.org) does). This means that when you
-enable a plugin, Vivid assumes that you want that plugin enabled, despite
-whether it has actually been installed. So when a plugin is enabled, Vivid will
-automatically install (if it hasn't already), then it will enable it.
+<!-- TODO maybe mention the "Principle of least astonishment" -->
+Vivid applies a "[Do What I Mean](https://en.wikipedia.org/wiki/DWIM)" approach
+to plugin management. This means that when you enable a plugin, Vivid assumes
+that you want that plugin enabled, despite whether it has actually been
+installed. So when a plugin is enabled, Vivid will automatically install (if it
+hasn't already), then it will preceed to enable it.
 
 The install of plugins can also be done manually through the use of the
 `PluginInstall` command (or `vivid#install` function).
@@ -144,12 +147,11 @@ the "[Enabling Plugins]" section of the [Vivid wiki].
 :PluginEnable
 ```
 
-This is an example of a possible use case, taken from the [author's own Vim
-config](https://github.com/axvr/dotfiles):
+This is an example of a possible use case, for TypeScript development:
 
 ```vim
-autocmd FileType typescript call vivid#enable('typescript-vim', 'tsuquyomi')
-autocmd BufRead,BufNewFile *.ts setlocal filetype=typescript
+autocmd! FileType typescript call vivid#enable('typescript-vim', 'tsuquyomi')
+autocmd! BufRead,BufNewFile *.ts setlocal filetype=typescript
 ```
 
 
@@ -197,6 +199,4 @@ plugin directory on yor system.
 [Vim]:https://www.vim.org
 [Vivid wiki]:https://github.com/axvr/Vivid.vim/wiki
 [Using Vivid]:https://github.com/axvr/Vivid.vim/wiki/Managing-Plugins
-[Adding Plugins]:https://github.com/axvr/Vivid.vim/wiki/Managing-Plugins#adding-plugins
 [Enabling Plugins]:https://github.com/axvr/Vivid.vim/wiki/Managing-Plugins#enabling-plugins
-
