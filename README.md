@@ -162,20 +162,23 @@ problem is that not every plugin sets a `g:loaded_plugin_name` variable. Because
 of this Vivid provides a simple function to query the status of a plugin.
 
 The function is `vivid#enabled`, and it takes only one argument, the name of the
-plugin to check the status of. The function returns a boolean result. `0`:
-Disabled or not being managed, and `1`: Enabled.
+plugin to check the status of. This function returns a boolean result. `0`:
+Disabled or not managed, and `1`: Enabled.
 
-Example of a possible instance of plugin status checking in a Vim configration:
+Example use case of configuring the git commit window:
 
 ```vim
-" Add Git branch to Vim statusline if vim-fugitive is enabled
-function! GitBranch()
-    if vivid#enabled('vim-fugitive') && fugitive#head() != ''
-        return '  ' . fugitive#head() . ' '
-    else | return ''
+Plugin 'rhysd/committia.vim'
+
+function! s:configure_committia() abort
+    if vivid#enabled('committia.vim') &&
+                \ expand('%:t') =~# '\m\C__committia_\(diff\|status\)__'
+        setlocal nocursorline colorcolumn=
     endif
 endfunction
-set statusline=%{GitBranch()}
+
+autocmd BufReadPre COMMIT_EDITMSG call vivid#enable('committia.vim')
+autocmd FileType diff,gitcommit call <SID>configure_committia()
 ```
 
 
