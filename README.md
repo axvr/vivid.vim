@@ -4,7 +4,7 @@
 Vim.**
 
 <!-- Badges made using https://shields.io/ -->
-[![Version Badge](https://img.shields.io/badge/Version-v1.0.0--alpha.3-brightgreen.svg)](https://github.com/axvr/Vivid.vim/releases)
+[![Version Badge](https://img.shields.io/badge/Version-v1.0.0--rc.1-brightgreen.svg)](https://github.com/axvr/Vivid.vim/releases)
 [![Licence Badge](https://img.shields.io/badge/Licence-MIT-blue.svg)](https://github.com/axvr/Vivid.vim/blob/master/LICENCE)
 
 
@@ -150,6 +150,9 @@ the "[Enabling Plugins]" section of the [Vivid wiki].
 This is an example of a possible use case, for TypeScript development:
 
 ```vim
+Plugin 'leafgarland/typescript-vim'
+Plugin 'Quramy/tsuquyomi'
+
 autocmd! FileType typescript call vivid#enable('typescript-vim', 'tsuquyomi')
 autocmd! BufRead,BufNewFile *.ts setlocal filetype=typescript
 ```

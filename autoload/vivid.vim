@@ -9,7 +9,7 @@
 if exists('g:loaded_vivid') || !has('packages') || &cp | finish | endif
 let g:loaded_vivid = 1 | lockvar g:loaded_vivid
 
-let s:plugins = { }
+let s:plugins = {}
 let s:plugin_defaults = { 'enabled': 0, 'depth': 1, 'name': '' }
 lockvar s:plugin_defaults
 
@@ -134,7 +134,7 @@ function! vivid#update(...) abort
             echomsg l:echo_message     'Skipped:  ' l:plugin
         elseif l:output =~# '\m\CAlready up[- ]to[- ]date\.'
             echomsg l:echo_message     'Latest:   ' l:plugin
-        elseif l:output =~# '\m\C^From'
+        elseif l:output =~# '\m\C^\(From\|Updating\)'
             echomsg l:echo_message 'Updated:  ' l:plugin
         else
             echohl ErrorMsg
