@@ -16,8 +16,8 @@ lockvar s:plugin_defaults
 " Find Vivid install location (fast if nothing has been added to the 'rtp' yet)
 for s:path in split(&runtimepath, ',')
     if s:path =~# '.Vivid\.vim$'
-        let s:install_location = substitute(s:path, '\m\C.Vivid\.vim$', '', '')
-        lockvar s:install_location
+        let g:vlf_install_location = substitute(s:path, '\m\C.Vivid\.vim$', '', '')
+        lockvar g:vlf_install_location
         unlet s:path
         break
     endif
@@ -105,7 +105,7 @@ function! vivid#install(...) abort
     let l:dict = <SID>pick_a_dictionary(a:000)
     for [l:plugin, l:data] in items({l:dict})
         let l:echo_message = 'Vivid: Plugin install -'
-        let l:install_path = expand(s:install_location . '/' . l:plugin)
+        let l:install_path = expand(g:vlf_install_location . '/' . l:plugin)
         if !isdirectory(l:install_path)
             let l:cmd = 'git clone --recurse-submodules "' .
                         \ l:data['remote'] . '" "' . l:install_path . '"'
@@ -125,7 +125,7 @@ function! vivid#update(...) abort
     let l:dict = <SID>pick_a_dictionary(a:000)
     for l:plugin in keys({l:dict})
         let l:echo_message = 'Vivid: Plugin update  -'
-        let l:plugin_location = expand(s:install_location . '/' . l:plugin)
+        let l:plugin_location = expand(g:vlf_install_location . '/' . l:plugin)
         let l:cmd = 'git -C "' . l:plugin_location .
                     \ '" pull --recurse-submodules'
         let l:output = system(l:cmd)
@@ -149,12 +149,12 @@ function! vivid#enable(...) abort
     let l:dict = <SID>pick_a_dictionary(a:000)
     for l:plugin in keys({l:dict})
         if s:plugins[l:plugin]['enabled'] == 0
-            if !isdirectory(s:install_location . '/' . l:plugin)
+            if !isdirectory(g:vlf_install_location . '/' . l:plugin)
                 call vivid#install(l:plugin)
             endif
             let s:plugins[l:plugin]['enabled'] = 1
             silent execute 'packadd ' . l:plugin
-            let l:doc = expand(s:install_location . '/' . l:plugin . '/doc/')
+            let l:doc = expand(g:vlf_install_location . '/' . l:plugin . '/doc/')
             call <SID>gen_helptags(l:doc)
         endif
     endfor
@@ -163,7 +163,7 @@ endfunction
 " Create a list of all dirs to delete
 function! s:list_all_files(...) abort
     " TODO create and use a comma separated list of paths
-    let l:dir_list = globpath(s:install_location, '*', 0, 1)
+    let l:dir_list = globpath(g:vlf_install_location, '*', 0, 1)
     for l:dir in l:dir_list
         let l:name = split(l:dir, '/')
         let l:name = substitute(l:name[-1], '\m\C\.git$', '', '')
@@ -186,7 +186,7 @@ function! vivid#clean(...) abort
         let l:dict = <SID>pick_a_dictionary(a:000)
         for l:plugin in keys({l:dict})
             let s:plugins[l:plugin]['enabled'] = 0
-            call delete(expand(s:install_location . '/' . l:plugin), 'rf')
+            call delete(expand(g:vlf_install_location . '/' . l:plugin), 'rf')
             echomsg 'Vivid: Plugin clean   - Deleted:  ' l:plugin
         endfor
     endif
