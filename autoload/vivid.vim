@@ -107,8 +107,9 @@ function! vivid#install(...) abort
         let l:echo_message = 'Vivid: Plugin install -'
         let l:install_path = expand(g:vlf_install_location . '/' . l:plugin)
         if !isdirectory(l:install_path)
-            let l:cmd = 'git clone --recurse-submodules "' .
-                        \ l:data['remote'] . '" "' . l:install_path . '"'
+            let l:cmd = 'git clone --recurse-submodules --shallow-submodules '.
+                        \ '--no-tags --single-branch --depth '.l:data['depth'].
+                        \ ' "'.l:data['remote'].'" "'.l:install_path.'"'
             if system(l:cmd) =~# '\m\C\(warning\|fatal\):'
                 echohl ErrorMsg
                 echomsg l:echo_message 'Failed:   ' l:plugin
@@ -127,7 +128,8 @@ function! vivid#update(...) abort
         let l:echo_message = 'Vivid: Plugin update  -'
         let l:plugin_location = expand(g:vlf_install_location . '/' . l:plugin)
         let l:cmd = 'git -C "' . l:plugin_location .
-                    \ '" pull --recurse-submodules'
+                    \ '" pull --recurse-submodules --no-tags '.
+                    \ '--depth='.s:plugins[l:plugin]['depth']
         let l:output = system(l:cmd)
 
         if !isdirectory(l:plugin_location)
@@ -162,7 +164,6 @@ endfunction
 
 " Create a list of all dirs to delete
 function! s:list_all_files(...) abort
-    " TODO create and use a comma separated list of paths
     let l:dir_list = globpath(g:vlf_install_location, '*', 0, 1)
     for l:dir in l:dir_list
         let l:name = split(l:dir, '/')
@@ -175,7 +176,6 @@ function! s:list_all_files(...) abort
 endfunction
 
 " Clean unused plugins
-" TODO improve the plugin cleaning system
 function! vivid#clean(...) abort
     if empty(a:000) || a:000 == [[]]
         for l:file in <SID>list_all_files()
