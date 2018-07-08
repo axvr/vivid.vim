@@ -10,7 +10,7 @@ if exists('g:loaded_vivid') || !has('packages') || &cp | finish | endif
 let g:loaded_vivid = 1 | lockvar g:loaded_vivid
 
 let s:plugins = {}
-let s:plugin_defaults = { 'enabled': 0, 'depth': 1, 'name': '' }
+let s:plugin_defaults = { 'enabled': 0, 'name': '' }
 lockvar s:plugin_defaults
 
 " Find Vivid install location (fast if nothing has been added to the 'rtp' yet)
@@ -107,8 +107,7 @@ function! vivid#install(...) abort
         let l:echo_message = 'Vivid: Plugin install -'
         let l:install_path = expand(g:vlf_install_location . '/' . l:plugin)
         if !isdirectory(l:install_path)
-            let l:cmd = 'git clone --recurse-submodules --shallow-submodules '.
-                        \ '--no-tags --single-branch --depth '.l:data['depth'].
+            let l:cmd = 'git clone --recurse-submodules '.
                         \ ' "'.l:data['remote'].'" "'.l:install_path.'"'
             if system(l:cmd) =~# '\m\C\(warning\|fatal\):'
                 echohl ErrorMsg
@@ -127,9 +126,7 @@ function! vivid#update(...) abort
     for l:plugin in keys({l:dict})
         let l:echo_message = 'Vivid: Plugin update  -'
         let l:plugin_location = expand(g:vlf_install_location . '/' . l:plugin)
-        let l:cmd = 'git -C "' . l:plugin_location .
-                    \ '" pull --recurse-submodules --no-tags '.
-                    \ '--depth='.s:plugins[l:plugin]['depth']
+        let l:cmd = 'git -C "'.l:plugin_location.'" pull --recurse-submodules'
         let l:output = system(l:cmd)
 
         if !isdirectory(l:plugin_location)
