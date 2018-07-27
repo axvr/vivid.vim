@@ -13,15 +13,8 @@ let s:plugins = {}
 let s:plugin_defaults = { 'enabled': 0, 'name': '' }
 lockvar s:plugin_defaults
 
-" Find Vivid install location (fast if nothing has been added to the 'rtp' yet)
-for s:path in split(&runtimepath, ',')
-    if s:path =~# '.Vivid\.vim$'
-        let g:vlf_install_location = substitute(s:path, '\m\C.Vivid\.vim$', '', '')
-        lockvar g:vlf_install_location
-        unlet s:path
-        break
-    endif
-endfor
+let g:vlf_install_location = expand('<sfile>:p:h:h:h')
+lockvar g:vlf_install_location
 
 " Completion for Vivid commands
 function! vivid#complete(...)
