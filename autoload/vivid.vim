@@ -13,8 +13,8 @@ let s:plugins = {}
 let s:plugin_defaults = { 'enabled': 0, 'name': '' }
 lockvar s:plugin_defaults
 
-let g:vlf_install_location = expand('<sfile>:p:h:h:h')
-lockvar g:vlf_install_location
+let g:vivid_path = expand('<sfile>:p:h:h:h')
+lockvar g:vivid_path
 
 " Completion for Vivid commands
 function! vivid#complete(...)
@@ -70,35 +70,30 @@ function! vivid#add(remote, ...) abort
         call vivid#enable(l:name)
     endif
 
+    return l:name
+
 endfunction
 
 " Allows the user to check if a plugin is enabled or not
-" Returns:  1 == enabled, 0 == disabled or not managed by Vivid
+" Returns: 1 == enabled, 0 == disabled or not managed by Vivid
 function! vivid#enabled(plugin_name) abort
     return get(s:plugins, a:plugin_name, 0)['enabled']
 endfunction
 
-" Usage: let l:var = <SID>pick_a_dictionary(a:000)
-function! s:pick_a_dictionary(...) abort
+" Usage: let l:dict = <SID>create_plugin_list(a:000)
+function! s:create_plugin_list(...) abort
     if empty(a:000) || a:000 == [[]]
-        return 's:plugins'
+        return s:plugins
     elseif !empty(a:000) && type(a:1) == v:t_list
-        let s:manipulate = {}
-        for l:item in a:1
-            if has_key(s:plugins, l:item) && !has_key(s:manipulate, l:item)
-                let s:manipulate[l:item] = s:plugins[l:item]
-            endif
-        endfor
-        return 's:manipulate'
+        return filter(copy(s:plugins), 'index(a:1, v:key) != -1')
     endif
 endfunction
 
 " Install plugins
 function! vivid#install(...) abort
-    let l:dict = <SID>pick_a_dictionary(a:000)
-    for [l:plugin, l:data] in items({l:dict})
-        let l:echo_message = 'Vivid: Plugin install -'
-        let l:install_path = expand(g:vlf_install_location . '/' . l:plugin)
+    for [l:plugin, l:data] in items(<SID>create_plugin_list(a:000))
+        let l:echo_message = 'Install -'
+        let l:install_path = expand(g:vivid_path . '/' . l:plugin)
         if !isdirectory(l:install_path)
             let l:cmd = 'git clone --recurse-submodules '.
                         \ ' "'.l:data['remote'].'" "'.l:install_path.'"'
@@ -115,10 +110,9 @@ endfunction
 
 " Update plugins
 function! vivid#update(...) abort
-    let l:dict = <SID>pick_a_dictionary(a:000)
-    for l:plugin in keys({l:dict})
-        let l:echo_message = 'Vivid: Plugin update  -'
-        let l:plugin_location = expand(g:vlf_install_location . '/' . l:plugin)
+    for l:plugin in keys(<SID>create_plugin_list(a:000))
+        let l:echo_message = 'Update  -'
+        let l:plugin_location = expand(g:vivid_path . '/' . l:plugin)
         let l:cmd = 'git -C "'.l:plugin_location.'" pull --recurse-submodules'
         let l:output = system(l:cmd)
 
@@ -138,31 +132,23 @@ endfunction
 
 " Enable plugins
 function! vivid#enable(...) abort
-    let l:dict = <SID>pick_a_dictionary(a:000)
-    for l:plugin in keys({l:dict})
+    for l:plugin in keys(<SID>create_plugin_list(a:000))
         if s:plugins[l:plugin]['enabled'] == 0
-            if !isdirectory(g:vlf_install_location . '/' . l:plugin)
+            if !isdirectory(g:vivid_path . '/' . l:plugin)
                 call vivid#install(l:plugin)
             endif
             let s:plugins[l:plugin]['enabled'] = 1
             silent execute 'packadd ' . l:plugin
-            let l:doc = expand(g:vlf_install_location . '/' . l:plugin . '/doc/')
+            let l:doc = expand(g:vivid_path . '/' . l:plugin . '/doc/')
             call <SID>gen_helptags(l:doc)
         endif
     endfor
 endfunction
 
-" Create a list of all dirs to delete
+" Create a list of all files to delete
 function! s:list_all_files(...) abort
-    let l:dir_list = globpath(g:vlf_install_location, '*', 0, 1)
-    for l:dir in l:dir_list
-        let l:name = split(l:dir, '/')
-        let l:name = substitute(l:name[-1], '\m\C\.git$', '', '')
-        if has_key(s:plugins, l:name)
-            call remove(l:dir_list, index(l:dir_list, l:dir))
-        endif
-    endfor
-    return l:dir_list
+    let l:dirs = globpath(g:vivid_path, '*', 0, 1)
+    return filter(l:dirs, {i, v -> !has_key(s:plugins, split(v, '/')[-1])})
 endfunction
 
 " Clean unused plugins
@@ -170,14 +156,13 @@ function! vivid#clean(...) abort
     if empty(a:000) || a:000 == [[]]
         for l:file in <SID>list_all_files()
             call delete(expand(l:file), 'rf')
-            echomsg 'Vivid: Plugin clean   - Deleted:  ' l:file
+            echomsg 'Removed: ' l:file
         endfor
     else
-        let l:dict = <SID>pick_a_dictionary(a:000)
-        for l:plugin in keys({l:dict})
+        for l:plugin in keys(<SID>create_plugin_list(a:000))
             let s:plugins[l:plugin]['enabled'] = 0
-            call delete(expand(g:vlf_install_location . '/' . l:plugin), 'rf')
-            echomsg 'Vivid: Plugin clean   - Deleted:  ' l:plugin
+            call delete(expand(g:vivid_path . '/' . l:plugin), 'rf')
+            echomsg 'Removed: ' l:plugin
         endfor
     endif
 endfunction
