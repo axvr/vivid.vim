@@ -80,8 +80,13 @@ function! vivid#enabled(plugin_name) abort
     return get(s:plugins, a:plugin_name, 0)['enabled']
 endfunction
 
-" Usage: let l:dict = <SID>create_plugin_list(a:000)
-function! s:create_plugin_list(...) abort
+" Create a list of plugins to operate on
+" --------------------------------------
+" - If a list is given (and is not empty), a dictionary will be created
+"   consisting of valid plugins based on the input list.
+" - If no arguments are passed (or argument is an empty list), the function will
+"   return the main plugin dictionary.
+function! s:create_plugin_dict(...) abort
     if empty(a:000) || a:000 == [[]]
         return s:plugins
     elseif !empty(a:000) && type(a:1) == v:t_list
@@ -91,7 +96,7 @@ endfunction
 
 " Install plugins
 function! vivid#install(...) abort
-    for [l:plugin, l:data] in items(<SID>create_plugin_list(a:000))
+    for [l:plugin, l:data] in items(<SID>create_plugin_dict(a:000))
         let l:echo_message = 'Install -'
         let l:install_path = expand(g:vivid_path . '/' . l:plugin)
         if !isdirectory(l:install_path)
@@ -110,7 +115,7 @@ endfunction
 
 " Update plugins
 function! vivid#update(...) abort
-    for l:plugin in keys(<SID>create_plugin_list(a:000))
+    for l:plugin in keys(<SID>create_plugin_dict(a:000))
         let l:echo_message = 'Update  -'
         let l:plugin_location = expand(g:vivid_path . '/' . l:plugin)
         let l:cmd = 'git -C "'.l:plugin_location.'" pull --recurse-submodules'
@@ -132,7 +137,7 @@ endfunction
 
 " Enable plugins
 function! vivid#enable(...) abort
-    for l:plugin in keys(<SID>create_plugin_list(a:000))
+    for l:plugin in keys(<SID>create_plugin_dict(a:000))
         if s:plugins[l:plugin]['enabled'] == 0
             if !isdirectory(g:vivid_path . '/' . l:plugin)
                 call vivid#install(l:plugin)
@@ -145,21 +150,21 @@ function! vivid#enable(...) abort
     endfor
 endfunction
 
-" Create a list of all files to delete
-function! s:list_all_files(...) abort
+" Create a list of all files in plugin directory to delete
+function! s:create_file_list(...) abort
     let l:dirs = globpath(g:vivid_path, '*', 0, 1)
     return filter(l:dirs, {i, v -> !has_key(s:plugins, split(v, '/')[-1])})
 endfunction
 
-" Clean unused plugins
+" Clean up unmanaged plugins from the plugin directory
 function! vivid#clean(...) abort
     if empty(a:000) || a:000 == [[]]
-        for l:file in <SID>list_all_files()
+        for l:file in <SID>create_file_list()
             call delete(expand(l:file), 'rf')
             echomsg 'Removed: ' l:file
         endfor
     else
-        for l:plugin in keys(<SID>create_plugin_list(a:000))
+        for l:plugin in keys(<SID>create_plugin_dict(a:000))
             let s:plugins[l:plugin]['enabled'] = 0
             call delete(expand(g:vivid_path . '/' . l:plugin), 'rf')
             echomsg 'Removed: ' l:plugin
