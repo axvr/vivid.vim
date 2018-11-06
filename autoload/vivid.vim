@@ -21,13 +21,6 @@ function! vivid#complete(...)
     return sort(filter(keys(s:plugins), 'stridx(v:val, a:1) == 0'))
 endfunction
 
-" Generate helptags
-function! s:gen_helptags(doc_location) abort
-    if isdirectory(a:doc_location)
-        execute 'helptags ' . expand(a:doc_location)
-    endif
-endfunction
-
 " Add a plugin for Vivid to manage
 function! vivid#add(remote, ...) abort
 
@@ -97,18 +90,20 @@ endfunction
 " Install plugins
 function! vivid#install(...) abort
     for [l:plugin, l:data] in items(<SID>create_plugin_dict(a:000))
-        let l:echo_message = 'Install -'
         let l:install_path = expand(g:vivid_path . '/' . l:plugin)
-        if !isdirectory(l:install_path)
-            let l:cmd = 'git clone --recurse-submodules '.
-                        \ ' "'.l:data['remote'].'" "'.l:install_path.'"'
-            if system(l:cmd) =~# '\m\C\(warning\|fatal\):'
-                echohl ErrorMsg
-                echomsg l:echo_message 'Failed:   ' l:plugin
-                echohl None
-            else
-                echomsg l:echo_message 'Installed:' l:plugin
-            endif
+
+        if isdirectory(l:install_path)
+            continue
+        endif
+
+        call system('git clone --recurse-submodules "'.l:data['remote'].'" "'.l:install_path.'"')
+
+        if v:shell_error
+            echohl ErrorMsg
+            echomsg 'Install - Failed:   ' l:plugin
+            echohl None
+        else
+            echomsg 'Install - Installed:' l:plugin
         endif
     endfor
 endfunction
@@ -116,21 +111,22 @@ endfunction
 " Update plugins
 function! vivid#update(...) abort
     for l:plugin in keys(<SID>create_plugin_dict(a:000))
-        let l:echo_message = 'Update  -'
         let l:plugin_location = expand(g:vivid_path . '/' . l:plugin)
-        let l:cmd = 'git -C "'.l:plugin_location.'" pull --recurse-submodules'
-        let l:output = system(l:cmd)
 
         if !isdirectory(l:plugin_location)
-            echomsg l:echo_message     'Skipped:  ' l:plugin
-        elseif l:output =~# '\m\CAlready up[- ]to[- ]date\.'
-            echomsg l:echo_message     'Latest:   ' l:plugin
-        elseif l:output =~# '\m\C^\(From\|Updating\)'
-            echomsg l:echo_message 'Updated:  ' l:plugin
-        else
+            continue
+        endif
+
+        let l:output = system('git -C "'.l:plugin_location.'" pull --recurse-submodules')
+
+        if v:shell_error
             echohl ErrorMsg
-            echomsg l:echo_message 'Failed:   ' l:plugin
+            echomsg 'Update  - Failed:   ' l:plugin
             echohl None
+        elseif l:output =~# '\m\CAlready up[- ]to[- ]date\.'
+            echomsg 'Update  - Latest:   ' l:plugin
+        else
+            echomsg 'Update  - Updated:  ' l:plugin
         endif
     endfor
 endfunction
@@ -142,16 +138,21 @@ function! vivid#enable(...) abort
             if !isdirectory(g:vivid_path . '/' . l:plugin)
                 call vivid#install(l:plugin)
             endif
+
             let s:plugins[l:plugin]['enabled'] = 1
             silent execute 'packadd ' . l:plugin
+
+            " Generate help tags
             let l:doc = expand(g:vivid_path . '/' . l:plugin . '/doc/')
-            call <SID>gen_helptags(l:doc)
+            if isdirectory(l:doc)
+                execute 'helptags ' . expand(l:doc)
+            endif
         endif
     endfor
 endfunction
 
 " Create a list of all files in plugin directory to delete
-function! s:create_file_list(...) abort
+function! s:create_file_list() abort
     let l:dirs = globpath(g:vivid_path, '*', 0, 1)
     return filter(l:dirs, {i, v -> !has_key(s:plugins, split(v, '/')[-1])})
 endfunction
