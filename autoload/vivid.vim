@@ -1,7 +1,7 @@
 " ==============================================================================
 " Name:         Vivid.vim
 " Author:       Alex Vear
-" HomePage:     https://github.com/axvr/Vivid.vim
+" HomePage:     https://github.com/axvr/vivid.vim
 " Licence:      MIT Licence
 " ==============================================================================
 

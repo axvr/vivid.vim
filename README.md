@@ -1,31 +1,22 @@
 # Vivid.vim
 
-**Vivid is a Vim plugin management solution; designed to work with, not against
+**Vivid is a minimal Vim plugin manager; designed to work with, not against
 Vim.**
 
 <!-- Badges made using https://shields.io/ -->
-[![Version Badge](https://img.shields.io/badge/Version-v1.0.0--rc.1-brightgreen.svg)](https://github.com/axvr/Vivid.vim/releases)
-[![Licence Badge](https://img.shields.io/badge/Licence-MIT-blue.svg)](https://github.com/axvr/Vivid.vim/blob/master/LICENCE)
+[![Version Badge](https://img.shields.io/badge/Version-v1.0.0-brightgreen.svg)](https://github.com/axvr/vivid.vim/releases)
+[![Licence Badge](https://img.shields.io/badge/Licence-MIT-blue.svg)](https://github.com/axvr/vivid.vim/blob/master/LICENCE)
 
 
 ## About Vivid
 
-**Vivid is a [Vim] plugin manager** built to be minimal, fast and efficient.
-Vivid is designed to allow Vim users to fine tune exactly when their plugins are
-loaded into Vim. The user is encouraged to use the tools provided by Vivid to
-define custom rules for managing their plugins, whilst keeping the process as
-simple as possible.
+**Vivid is a [Vim] plugin manager**, built to be minimal, fast and efficient.
+Vivid provides Vim users with simple, but powerful tools, which allow them to
+fine tune exactly when their plugins should be enabled.
 
-**Designed to be [extensible]()**, additional plugins can be added to change the
-default behaviour of Vivid, or add additional features and tools (**WIP**).
-
-**Vivid can be integrated into other plugins**, through the "[*Vivid Layer
-Framework*]()" (**WIP**). This allows the creation of more powerful and faster
-plugins, with much simpler implementation. The *VLF* essentially allows plugins
-to manage other plugins, independent of what plugin manager the user chose to
-use. This is possible with very little overhead because of its sheer speed, and
-tiny size.
-
+Vivid focuses on being as minimal as possible, while still getting the job
+done, because of this some features (e.g. parallel install/update of plugins)
+are outside the scope of the project.
 
 ---
 
@@ -37,10 +28,10 @@ tiny size.
 ## Quick Start
 
 See the [Vivid wiki] for more information, examples and the
-[FAQ](https://github.com/axvr/Vivid.vim/wiki/FAQ). For convenience the titles of
+[FAQ](https://github.com/axvr/vivid.vim/wiki/FAQ). For convenience the titles of
 each section below contain links to the relevant wiki sections.
 
-### [Dependencies](https://github.com/axvr/Vivid.vim/wiki/Installing-Vivid#required-dependencies)
+### [Dependencies](https://github.com/axvr/vivid.vim/wiki/Installing-Vivid#required-dependencies)
 
 Vivid requires that the [Git](https://git-scm.com) VCS is installed on your
 system, and [Vim] \(8.0+\) or [Neovim](https://neovim.io).
@@ -50,12 +41,12 @@ for other VCSs and archives feel free to create an extension to add these
 features to Vivid.
 
 
-### [Install Vivid](https://github.com/axvr/Vivid.vim/wiki/Installing-Vivid#how-to-install-vivid)
+### [Install Vivid](https://github.com/axvr/vivid.vim/wiki/Installing-Vivid#how-to-install-vivid)
 
 To install Vivid on Vim run this command in a terminal emulator:
 
 ```sh
-git clone https://github.com/axvr/Vivid.vim ~/.vim/pack/vivid/opt/Vivid.vim
+git clone https://github.com/axvr/vivid.vim ~/.vim/pack/vivid/opt/Vivid.vim
 ```
 
 Then to enable Vivid place `packadd Vivid.vim` in your Vim config (before any
@@ -65,7 +56,7 @@ plugin definitions). It's that easy no other boilerplate code is required.
 that Vim can find Vivid. See `:h 'packpath'`.
 
 
-### [Using Vivid]
+### [Using Vivid](https://github.com/axvr/vivid.vim/wiki/Managing-Plugins)
 
 By default Vivid will not enable any plugins, this is because of it's heavy
 focus on lazy loading. However this behaviour can be reversed by including
@@ -77,12 +68,12 @@ on any plugin that is being managed. The exception is the `packadd Vivid.vim`
 before any plugin config.
 
 
-#### [Adding Plugins](https://github.com/axvr/Vivid.vim/wiki/Managing-Plugins#adding-plugins)
+#### [Adding Plugins](https://github.com/axvr/vivid.vim/wiki/Managing-Plugins#adding-plugins)
 
 To add plugins for Vivid to manage, use the `Plugin` command (or `vivid#add`
 function). Vivid provides options which can be set when adding plugins. For info
 on how to use these options refer to the "[Plugin
-Options](https://github.com/axvr/Vivid.vim/wiki/Managing-Plugins#plugin-options)"
+Options](https://github.com/axvr/vivid.vim/wiki/Managing-Plugins#plugin-options)"
 section of the Wiki.
 
 ```vim
@@ -95,16 +86,13 @@ Plugin 'tpope/vim-fugitive', { 'enabled': 1 }   " Add and enable plugin by defau
 ```
 
 
-#### [Installing Plugins](https://github.com/axvr/Vivid.vim/wiki/Managing-Plugins#installing-plugins)
+#### [Installing Plugins](https://github.com/axvr/vivid.vim/wiki/Managing-Plugins#installing-plugins)
 
-<!-- TODO maybe mention the "Principle of least astonishment" -->
-Vivid applies a "[Do What I Mean](https://en.wikipedia.org/wiki/DWIM)" approach
-to plugin management. This means that when you enable a plugin, Vivid assumes
-that you want that plugin enabled, despite whether it has actually been
-installed. So when a plugin is enabled, Vivid will automatically install (if it
-hasn't already), then it will preceed to enable it.
+Usually you will never have to manually tell Vivid to install a plugin, because
+whenever a plugin is enabled, Vivid will automatically install it, if not
+already installed.
 
-The install of plugins can also be done manually through the use of the
+If you really want to manually make Vivid install a plugin(s) you can use the
 `PluginInstall` command (or `vivid#install` function).
 
 ```vim
@@ -116,7 +104,7 @@ The install of plugins can also be done manually through the use of the
 ```
 
 
-#### [Updating Plugins](https://github.com/axvr/Vivid.vim/wiki/Managing-Plugins#updating-plugins)
+#### [Updating Plugins](https://github.com/axvr/vivid.vim/wiki/Managing-Plugins#updating-plugins)
 
 Plugins can be updated by Vivid. This is done by using the `PluginUpdate`
 command (or the `vivid#update` function).
@@ -158,7 +146,7 @@ autocmd! BufRead,BufNewFile *.ts setlocal filetype=typescript
 ```
 
 
-#### [Check Plugin Status](https://github.com/axvr/Vivid.vim/wiki/Managing-Plugins#check-plugin-status)
+#### [Check Plugin Status](https://github.com/axvr/vivid.vim/wiki/Managing-Plugins#check-plugin-status)
 
 Sometimes it is useful to check whether a plugin has been enabled, but the
 problem is that not every plugin sets a `g:loaded_plugin_name` variable. Because
@@ -185,7 +173,7 @@ autocmd FileType diff,gitcommit call <SID>configure_committia()
 ```
 
 
-#### [Cleaning Plugins](https://github.com/axvr/Vivid.vim/wiki/Managing-Plugins#cleaning-plugins)
+#### [Cleaning Plugins](https://github.com/axvr/vivid.vim/wiki/Managing-Plugins#cleaning-plugins)
 
 By making use of the `PluginClean` command (or `vivid#clean` function), it is
 possible to remove in use plugins and remove all of the unused plugins. from the
@@ -203,6 +191,5 @@ plugin directory on yor system.
 <!-- Links -->
 
 [Vim]:https://www.vim.org
-[Vivid wiki]:https://github.com/axvr/Vivid.vim/wiki
-[Using Vivid]:https://github.com/axvr/Vivid.vim/wiki/Managing-Plugins
-[Enabling Plugins]:https://github.com/axvr/Vivid.vim/wiki/Managing-Plugins#enabling-plugins
+[Vivid wiki]:https://github.com/axvr/vivid.vim/wiki
+[Enabling Plugins]:https://github.com/axvr/vivid.vim/wiki/Managing-Plugins#enabling-plugins
