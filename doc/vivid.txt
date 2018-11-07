@@ -1,4 +1,4 @@
-*vivid.txt*	For Vim version 8.0	Last change: 2018 April 11
+*vivid.txt*	For Vim version 8.0	Last change: 2018 November 06
 
 
 		Vivid.vim Manual    by Alex Vear~
@@ -6,28 +6,26 @@
 
 Welcome to the Vivid user and developer manual		*vivid.vim*
 
-1. What is Vivid?	|vivid-what-is|
-2. Requirements		|vivid-requirements|
-3. How to use Vivid	|vivid-how-to|
+1. What is Vivid?		|vivid-what-is|
+2. Requirements			|vivid-requirements|
+3. Adding plugins		|vivid-add|
+4. Installing plugins		|vivid-install|
+5. Updating plugins		|vivid-update|
+6. Enabling plugins		|vivid-enable|
+7. Check plugin status		|vivid-status|
+8. Cleaning plugins		|vivid-clean|
+9. Messages			|vivid-messages|
 
 ==============================================================================
-1. What is Vivid?					*vivid-what-is*
+1. What is Vivid?						*vivid-what-is*
 
-Vivid is a Vim plugin manager built to be minimal, fast and efficient. Vivid
-is designed to allow Vim users to fine tune exactly when their plugins are
-loaded into Vim. The user is encouraged to use the tools provided by Vivid to
-define custom rules for managing their plugins, whilst keeping the process as
-simple as possible.
+Vivid is a Vim plugin manager, built to be minimal, fast and efficient. Vivid
+provides Vim users with simple, but powerful tools, which allow them to fine
+tune exactly when their plugins should be enabled.
 
-Designed to be extensible, additional plugins can be added to change the
-default behaviour of Vivid, or add additional features and tools (WIP).
-
-Vivid can be integrated into other plugins, through the "Vivid Layer
-Framework" (WIP). This allows the creation of more powerful and faster
-plugins, with much simpler implementation. The VLF essentially allows plugins
-to manage other plugins, independent of what plugin manager the user chose to
-use. This is possible with very little overhead because of its sheer speed,
-and tiny size.
+Vivid focuses on being as minimal as possible, while still getting the job
+done, because of this some features (e.g. parallel install/update of plugins)
+are outside the scope of the project.
 
 ==============================================================================
 2. Requirements						*vivid-requirements*
@@ -37,10 +35,274 @@ and tiny size.
 * Any OS supported by Vim that can run shell commands (|sys-file-list|, |:!cmd|).
 
 ==============================================================================
-3. How to use Vivid					*vivid-how-to*
+3. Adding plugins						*vivid-add*
 
-[place-holder]
+In order for Vivid to know which plugins to manage, you will need to "add"
+them. Adding plugins is a simple process, and can be easily done through the
+`:Plugin` command or the `vivid#add()` function. Both the command and the function
+work in mostly the same way.
 
-For help with writing/editing this file see |help-writing|.
+Vivid heavily relies upon Git, this allows Vivid to fetch plugins from many
+different sources, even your own filesystem.
+
+A shorthand method of adding plugins from GitHub is built into Vivid. This
+allows the URLs of plugins to be shortened from
+https://github.com/tpope/vim-fugitive to `tpope/vim-fugitive`
+
+								*:Plugin*
+The :Plugin command~
+>
+	packadd Vivid.vim  " Required (this enables Vivid)
+
+	Plugin 'tpope/vim-fugitive'                     " Simple adding from GitHub
+	Plugin 'https://github.com/tpope/vim-fugitive'  " Using full remote address to plugin
+	Plugin 'tpope/vim-fugitive', { 'enabled': 1, }  " Enable plugin by default
+	Plugin 'tpope/vim-fugitive', {                  " Other options to provide to Vivid
+		\ 'name': 'fugitive',
+		\ 'enabled': 1,
+		\ }
+<
+								*vivid#add()*
+The vivid#add() function~
+>
+	packadd Vivid.vim  " Required (this enables Vivid)
+
+	call vivid#add('tpope/vim-fugitive')                    " Simple adding from GitHub
+	call vivid#add('https://github.com/tpope/vim-fugitive') " Using full remote address to plugin
+	call vivid#add('tpope/vim-fugitive', { 'enabled': 1, }) " Enable plugin by default
+	call vivid#add('tpope/vim-fugitive', {                  " Other options to provide to Vivid
+		\ 'name': 'fugitive',
+		\ 'enabled': 1,
+		\ })
+<
+							*vivid-plugin-options*
+Plugin options~
+
+When you are adding a plugin to Vivid, options can be provided to override the
+default behaviour for that particular plugin. These options are:
+
+- 'name'
+- 'enabled'
+- 'command'
+
+The 'name' option allows the user to override the default name a plugin is
+assigned. Note: this option accepts a string.
+>
+	Plugin 'tpope/vim-fugitive', { 'name': 'fugitive' }
+<
+The 'enabled' option makes it possible to set whether the plugin is enabled or
+disabled by disabled. Note: it accepts a boolean (`0` or `1`) value, and the
+default is `0`.
+>
+	Plugin 'tpope/vim-fugitive', { 'enabled': 1 }
+<
+The 'command' option allows the user to easily define specific commands which
+will enable a plugin. This is very useful when there is a specific command
+that a plugin uses, and you would like the plugin to only be enabled when that
+command is run. Note: this option accepts a list of strings.
+>
+	Plugin 'mbbill/undotree', { 'command': ['UndotreeToggle', 'UndotreeShow'] }
+<
+In the above example running either of `:UndotreeToggle` or `:UndotreeShow`, will
+enable the `mbbill/undotree` plugin then will execute the command again, so that
+the undo tree is displayed.
+
+							*vivid-plugin-naming*
+Default plugin naming~
+
+If a name has not been provided for a plugin, Vivid will automatically create
+a name for it, here are some examples of the name it creates:
+>
+	Plugin 'tpope/vim-fugitive'   " Name would be: vim-fugitive
+	Plugin 'rhysd/committia.vim'  " Name would be: committia.vim
+	Plugin 'https://github.com/wellle/targets.vim.git'  " Name would be: targets.vim
+<
+Note: plugins cannot have the same name, if they do Vivid will only accept the
+first one. To resolve this issue, you will have to make use of the 'name'
+option.
+
+==============================================================================
+4. Installing plugins						*vivid-install*
+
+Vivid can either install plugins "on demand" or "when needed". The "on demand"
+method is when the user invokes the install command (or function).
+Alternatively, Vivid will install plugins "when needed", which essentially
+means that the plugin will auto-install when enabled.
+
+								*:PluginInstall*
+The :PluginInstall command~
+>
+	" To install the vim-fugitive and committia plugins
+	:PluginInstall vim-fugitive committia.vim
+
+	" To install all plugins
+	:PluginInstall
+<
+							*vivid#install()*
+The vivid#install() function~
+>
+	" To install the vim-fugitive and committia plugins
+	:call vivid#install('vim-fugitive', 'committia.vim')
+
+	" To install all plugins
+	:call vivid#install()
+<
+==============================================================================
+5. Updating plugins						*vivid-update*
+
+Who would have guessed it? Vivid can also update your plugins! This can be
+easily achieved by using either the command or the function provided.
+
+								*:PluginUpdate*
+The :PluginUpdate command~
+>
+	" Update specified plugins: vim-fugitive and committia
+	:PluginUpdate vim-fugitive committia.vim
+
+	" Update all plugins
+	:PluginUpdate
+<
+								*vivid#update()*
+The vivid#update() function~
+>
+	" Update specified plugins: vim-fugitive and committia
+	:call vivid#update('vim-fugitive', 'committia.vim')
+
+	" Update all plugins
+	:call vivid#update()
+<
+==============================================================================
+6. Enabling plugins						*vivid-enable*
+
+One of Vivid's main selling points is its focus on "lazy loading". This means
+that there would have to be some way for the user to define when to enable the
+plugins. That is exactly what this section covers.
+
+As you may already know, by default Vivid loads no plugins, and encourages the
+user to write their own rules for when to enable plugins. Vivid provides
+simple tools to help create these rules.
+
+These tools are:
+
+- The `:PluginEnable` command and `vivid#enable()` function,
+- The `vivid#enabled()` function,
+- The 'command' option (provided when adding plugins, check: |vivid-add|).
+
+								*:PluginEnable*
+The :PluginEnable command~
+>
+	" Enable specified plugins: vim-fugitive and committia
+	:PluginEnable vim-fugitive committia.vim
+
+	" Enable all plugins (Vundle like behaviour)
+	:PluginEnable
+<
+								*vivid#enable()*
+The vivid#enable() function~
+>
+	" Enable specified plugins: vim-fugitive and committia
+	:call vivid#enable('vim-fugitive', 'committia.vim')
+
+	" Enable all plugins
+	:call vivid#enable()
+
+<
+The vivid#enabled() function~
+
+Please refer to this section: |vivid-status|.
+
+
+The 'command' option when enabling plugins~
+
+Please refer to this section: |vivid-plugin-options|.
+
+
+Examples~
+
+This is an example of a possible use case in a vimrc:
+>
+	function! s:enable_git_plugins() abort
+		if system('git rev-parse --is-inside-work-tree') =~# '\m\C^true'
+			call vivid#enable('vim-fugitive', 'committia.vim', 'vim-gitgutter')
+		endif
+	endfunction
+	autocmd! BufReadPre * call s:enable_git_plugins()
+	" ^ This could be better optimised
+<
+And another:
+>
+	Plugin 'leafgarland/typescript-vim'
+	Plugin 'Quramy/tsuquyomi'
+
+	autocmd! FileType typescript call vivid#enable('typescript-vim', 'tsuquyomi')
+	autocmd! BufRead,BufNewFile *.ts setlocal filetype=typescript
+<
+==============================================================================
+7. Check plugin status				*vivid-status*  *vivid#enabled()*
+
+Some vim plugins set a `g:plugin_name_loaded` variable to allow the user to
+check if a particular plugin is enabled. The problem here is that not all
+plugin author's add that in, and even if they did, you would still have to
+spend some time determining what they actually named that variable.
+
+To provide a simple solution to this problem Vivid allows you to ask it
+whether it has enabled a particular plugin, through the `vivid#enabled()`
+function.
+
+The function outputs a boolean value which represents:
+
+- `0`: Disabled or not managed
+- `1`: Enabled
+
+Example use case of configuring the git commit window:
+>
+	Plugin 'rhysd/committia.vim'
+
+	function! s:configure_committia() abort
+		if vivid#enabled('committia.vim') && expand('%:t') =~# '\m\C__committia_\(diff\|status\)__'
+			setlocal nocursorline colorcolumn=
+		endif
+	endfunction
+
+	autocmd BufReadPre COMMIT_EDITMSG call vivid#enable('committia.vim')
+	autocmd FileType diff,gitcommit call <SID>configure_committia()
+<
+==============================================================================
+8. Cleaning plugins						*vivid-clean*
+
+Like all good plugin managers, Vivid is able to clean up unmanaged plugins
+from the plugin directory (where Vivid is stored).
+
+								*:PluginClean*
+The :PluginClean command~
+>
+	" Remove all unmanaged plugins
+	:PluginClean
+
+	" Remove specified managed plugins: vim-fugitive and committia
+	:PluginClean vim-fugitive committia.vim
+<
+								*vivid#clean()*
+The vivid#clean() function~
+>
+	" Remove all unmanaged plugins
+	call vivid#clean()
+
+	" Remove specified managed plugins: vim-fugitive and committia
+	call vivid#clean('vim-fugitive' 'committia.vim')
+<
+Fixing broken plugins~
+
+Occasionally a plugin may not be able to be updated (this is usually caused by
+the user). If this happens to you, there is no reason to worry, it can be
+easily fixed by removing the plugin (using `:PluginClean` or `vivid#clean()`)
+then reinstalling it.
+
+==============================================================================
+9. Messages							*vivid-messages*
+
+Vivid uses the :messages window to store logs and error messages, however only
+messages from the current session can be viewed from it.
+
 
 vim:noet:ts=8:sts=8:sw=8:tw=78:ft=help:
